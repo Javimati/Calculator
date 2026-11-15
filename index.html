@@ -27,8 +27,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-ap
 
 /* Basic button grid */
 .btn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding-bottom:12px;flex-shrink:0}
-.btn{display:flex;align-items:center;justify-content:center;border-radius:50%;aspect-ratio:1;font-size:30px;font-weight:400;border:none;outline:none;cursor:pointer;-webkit-appearance:none;transition:opacity .05s}
-.btn:active{opacity:.6}
+.btn{display:flex;align-items:center;justify-content:center;border-radius:50%;aspect-ratio:1;font-size:30px;font-weight:400;border:none;outline:none;cursor:pointer;-webkit-appearance:none;transition:background-color .2s ease-out}
+.btn:active{opacity:1}
 .btn-num{background:#333;color:#fff}
 .btn-op{background:#ff9f0a;color:#fff;font-size:34px}
 .btn-fn{background:#a5a5a5;color:#000;font-size:22px}
@@ -47,8 +47,8 @@ body.sci .btn-fn{font-size:16px}
 
 .sci-grid{display:none;grid-template-columns:repeat(6,1fr);gap:4px;padding-bottom:4px;flex-shrink:0}
 body.sci .sci-grid{display:grid;flex:1;grid-auto-rows:1fr}
-.sci-btn{display:flex;align-items:center;justify-content:center;background:#333;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;padding:0;cursor:pointer;min-height:0;height:100%;-webkit-appearance:none;transition:opacity .05s,background .1s}
-.sci-btn:active{opacity:.6}
+.sci-btn{display:flex;align-items:center;justify-content:center;background:#333;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;padding:0;cursor:pointer;min-height:0;height:100%;-webkit-appearance:none;transition:background-color .2s ease-out}
+.sci-btn:active{opacity:1}
 .sci-btn.active-2nd{background:#555;color:#fff}
 .sci-btn.mem-active{color:#ff9f0a}
 
@@ -220,9 +220,9 @@ function showToast(msg) {
 
 // --- Number Formatting (Spanish locale) ---
 function fmtNum(s) {
-  if (s === 'Error' || s === 'Overflow') return s;
+  if (s === 'Error' || s === 'Maths error' || s === 'Overflow') return s;
   var n = parseFloat(s);
-  if (isNaN(n)) return 'Error';
+  if (isNaN(n)) return 'Maths error';
   if (!isFinite(n)) return 'Overflow';
 
   // If user is typing (has trailing dot or decimal digits being entered)
@@ -377,7 +377,7 @@ function doEquals() {
   }
 
   var result = evaluateTokens(tokens);
-  var resultStr = isNaN(result) ? 'Error' : !isFinite(result) ? 'Overflow' : String(result);
+  var resultStr = isNaN(result) ? 'Maths error' : !isFinite(result) ? 'Overflow' : String(result);
   addCalcHistory(exprDisplay, fmtNum(resultStr));
   currentNum = resultStr;
   tokens = [];
@@ -539,7 +539,7 @@ function saveCalcHistory() {
   try { localStorage.setItem('calcHistory', JSON.stringify(calcHistory)); } catch(e) {}
 }
 function addCalcHistory(expr, result) {
-  if (result === 'Error' || result === 'Overflow') return;
+  if (result === 'Error' || result === 'Maths error' || result === 'Overflow') return;
   calcHistory.unshift({expr: expr, result: result, time: Date.now()});
   if (calcHistory.length > 50) calcHistory.pop();
   saveCalcHistory();
@@ -820,7 +820,7 @@ function doSci(action) {
 
   // Apply result
   if (isNaN(result)) {
-    currentNum = 'Error'; tokens = [];
+    currentNum = 'Maths error'; tokens = [];
     freshNum = true; justEvald = true;
   } else if (!isFinite(result)) {
     currentNum = 'Overflow'; tokens = [];
@@ -866,6 +866,68 @@ function checkOrientation() {
 }
 mql.addEventListener('change', checkOrientation);
 window.addEventListener('resize', checkOrientation);
+
+// --- Button press animations (iOS 18 authentic lighten effect) ---
+function initBtnAnimations() {
+  document.querySelectorAll('.btn').forEach(function(btn) {
+    function press(e) {
+      // Prevent transition on press (instant lighten)
+      btn.style.transition = 'none';
+      if (btn.classList.contains('btn-num')) {
+        btn.style.backgroundColor = '#666';
+      } else if (btn.classList.contains('btn-op')) {
+        if (btn.classList.contains('hi')) {
+          // Selected operator (white bg) lightens to slight gray
+          btn.style.backgroundColor = '#e0e0e0';
+        } else {
+          btn.style.backgroundColor = '#ffc966';
+        }
+      } else if (btn.classList.contains('btn-fn')) {
+        btn.style.backgroundColor = '#d4d4d4';
+      }
+    }
+    function release() {
+      // Restore transition for smooth return
+      btn.style.transition = 'background-color 0.2s ease-out';
+      btn.style.backgroundColor = '';
+    }
+    btn.addEventListener('touchstart', press, {passive: true});
+    btn.addEventListener('touchend', release);
+    btn.addEventListener('touchcancel', release);
+    btn.addEventListener('mousedown', press);
+    btn.addEventListener('mouseup', release);
+    btn.addEventListener('mouseleave', release);
+  });
+}
+initBtnAnimations();
+
+// Observe sci-grid for dynamically added scientific buttons
+var sciGridEl = document.getElementById('sci-grid');
+var sciObserver = new MutationObserver(function() {
+  sciGridEl.querySelectorAll('.sci-btn').forEach(function(btn) {
+    if (btn._animBound) return;
+    btn._animBound = true;
+    function press() {
+      btn.style.transition = 'none';
+      if (btn.classList.contains('active-2nd')) {
+        btn.style.backgroundColor = '#777';
+      } else {
+        btn.style.backgroundColor = '#555';
+      }
+    }
+    function release() {
+      btn.style.transition = 'background-color 0.2s ease-out';
+      btn.style.backgroundColor = '';
+    }
+    btn.addEventListener('touchstart', press, {passive: true});
+    btn.addEventListener('touchend', release);
+    btn.addEventListener('touchcancel', release);
+    btn.addEventListener('mousedown', press);
+    btn.addEventListener('mouseup', release);
+    btn.addEventListener('mouseleave', release);
+  });
+});
+sciObserver.observe(sciGridEl, {childList: true});
 
 // Init
 loadCalcHistory();
