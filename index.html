@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Calculadora">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<title>Calculadora</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM0YTRhNGEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyYTJhMmEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSJ1cmwoI2cpIi8+PHJlY3QgeD0iMTYiIHk9IjMyIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI4IiBmaWxsPSIjYTVhNWE1Ii8+PHJlY3QgeD0iNTQiIHk9IjMyIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI4IiBmaWxsPSIjYTVhNWE1Ii8+PHJlY3QgeD0iOTIiIHk9IjMyIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI4IiBmaWxsPSIjYTVhNWE1Ii8+PHJlY3QgeD0iMTM0IiB5PSIzMiIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iOCIgZmlsbD0iI2ZmOWYwYSIvPjxyZWN0IHg9IjE2IiB5PSI3MCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iOCIgZmlsbD0iIzMzMyIvPjxyZWN0IHg9IjU0IiB5PSI3MCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iOCIgZmlsbD0iIzMzMyIvPjxyZWN0IHg9IjkyIiB5PSI3MCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iOCIgZmlsbD0iIzMzMyIvPjxyZWN0IHg9IjEzNCIgeT0iNzAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjgiIGZpbGw9IiNmZjlmMGEiLz48cmVjdCB4PSIxNiIgeT0iMTA4IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI4IiBmaWxsPSIjMzMzIi8+PHJlY3QgeD0iNTQiIHk9IjEwOCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iOCIgZmlsbD0iIzMzMyIvPjxyZWN0IHg9IjkyIiB5PSIxMDgiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjgiIGZpbGw9IiMzMzMiLz48cmVjdCB4PSIxMzQiIHk9IjEwOCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iOCIgZmlsbD0iI2ZmOWYwYSIvPjxyZWN0IHg9IjE2IiB5PSIxNDYiIHdpZHRoPSI2OCIgaGVpZ2h0PSIzMCIgcng9IjgiIGZpbGw9IiMzMzMiLz48cmVjdCB4PSI5MiIgeT0iMTQ2IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI4IiBmaWxsPSIjMzMzIi8+PHJlY3QgeD0iMTM0IiB5PSIxNDYiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjgiIGZpbGw9IiNmZjlmMGEiLz48L3N2Zz4=">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;color:#fff}
+#calc{display:flex;flex-direction:column;height:100dvh;padding:env(safe-area-inset-top,0) 16px env(safe-area-inset-bottom,0)}
+#top-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 0;flex-shrink:0}
+.top-icon{width:44px;height:44px;border-radius:50%;background:#2a2a2a;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.top-icon svg{width:22px;height:22px}
+#display-area{flex:1;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 8px 8px 0;min-height:60px;overflow:hidden}
+#display{font-size:min(88px,18vw);font-weight:300;text-align:right;line-height:1;letter-spacing:-2px;white-space:nowrap}
+.btn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding-bottom:12px;flex-shrink:0}
+.btn{display:flex;align-items:center;justify-content:center;border-radius:50%;aspect-ratio:1;font-size:30px;font-weight:400;border:none;outline:none;cursor:pointer;-webkit-appearance:none}
+.btn:active{opacity:.6}
+.btn-num{background:#333;color:#fff}
+.btn-op{background:#ff9f0a;color:#fff;font-size:34px}
+.btn-fn{background:#a5a5a5;color:#000;font-size:22px}
+.btn-op.hi{background:#fff;color:#ff9f0a}
+.btn-fn svg{width:24px;height:24px;fill:none;stroke:#000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#av{display:none;flex-direction:column;height:100dvh;background:#000;overflow:hidden;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+#av-h{display:flex;align-items:center;padding:8px 16px 10px;gap:12px;flex-shrink:0}
+#av-h button{width:36px;height:36px;border-radius:50%;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#avb{background:#333}
+#avx{background:#ff3b30}
+#avt{font-size:17px;font-weight:600;flex:1}
+#avc{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 24px}
+.mn{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mb{background:#1c1c1e;border:none;border-radius:16px;padding:18px 12px;color:#fff;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:5px}
+.mb:active{background:#2c2c2e}
+.mi{font-size:26px}.ml{font-size:13px;font-weight:600}.md{font-size:10px;color:#8e8e93;line-height:1.3}
+.af{display:flex;flex-direction:column;gap:12px}
+.al{font-size:12px;color:#8e8e93;text-transform:uppercase;letter-spacing:.5px}
+.ai{background:#1c1c1e;border:1px solid #333;border-radius:12px;padding:14px 16px;color:#fff;font-size:17px;font-family:inherit;width:100%;outline:none;-webkit-appearance:none}
+.ai:focus{border-color:#ff9f0a}
+.as{background:#1c1c1e;border:1px solid #333;border-radius:12px;padding:14px 16px;color:#fff;font-size:17px;font-family:inherit;width:100%;outline:none;-webkit-appearance:none}
+.ab{background:#ff9f0a;border:none;border-radius:12px;padding:16px;color:#fff;font-size:17px;font-weight:600;cursor:pointer;width:100%;margin-top:4px}
+.ab:active{opacity:.7}
+.ar{background:#1c1c1e;border-radius:16px;padding:16px;margin-top:12px;overflow-x:auto}
+.at{font-size:14px;line-height:1.7;color:#e5e5e7;font-family:'SF Mono',ui-monospace,monospace;white-space:pre-wrap;word-break:break-word}
+.at .h{color:#ff9f0a;font-weight:600}.at .d{color:#8e8e93}
+.af2{font-size:20px;font-weight:700;color:#30d158;margin-top:12px;padding:12px 16px;background:#0a3a1a;border-radius:12px;text-align:center}
+.tb{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px}
+.tb th{background:#2c2c2e;padding:8px 4px;text-align:center;font-weight:600;position:sticky;top:0}
+.tb td{padding:5px 4px;text-align:center;border-bottom:1px solid #222}
+.pk{color:#ff9f0a}.ca{color:#ff3b30}.zr{color:#8e8e93}
+#cc{width:100%;height:250px;background:#1c1c1e;border-radius:12px;margin-top:12px}
+.rg{display:flex;gap:0;border-radius:10px;overflow:hidden;background:#1c1c1e}
+.rd{flex:1;padding:10px 6px;text-align:center;font-size:13px;color:#8e8e93;cursor:pointer;border:none;background:transparent}
+.rd.on{background:#ff9f0a;color:#fff;font-weight:600}
+</style>
+</head>
+<body>
+<div id="calc">
+<div id="top-bar">
+<button class="top-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></button>
+<button class="top-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
+</div>
+<div id="display-area"><div id="display">0</div></div>
+<div class="btn-grid">
+<button class="btn btn-fn" data-fn="bs"><svg viewBox="0 0 24 24"><path d="M9 4l-6 8 6 8h13V4H9z"/><path d="M14 9l4 6M18 9l-4 6"/></svg></button>
+<button class="btn btn-fn" id="acb" data-fn="ac">AC</button>
+<button class="btn btn-fn" data-fn="pct">%</button>
+<button class="btn btn-op" data-op="÷">÷</button>
+<button class="btn btn-num" data-num="7">7</button>
+<button class="btn btn-num" data-num="8">8</button>
+<button class="btn btn-num" data-num="9">9</button>
+<button class="btn btn-op" data-op="×">×</button>
+<button class="btn btn-num" data-num="4">4</button>
+<button class="btn btn-num" data-num="5">5</button>
+<button class="btn btn-num" data-num="6">6</button>
+<button class="btn btn-op" data-op="−">−</button>
+<button class="btn btn-num" data-num="1">1</button>
+<button class="btn btn-num" data-num="2">2</button>
+<button class="btn btn-num" data-num="3">3</button>
+<button class="btn btn-op" data-op="+">+</button>
+<button class="btn btn-num" data-fn="sign">⁺⁄₋</button>
+<button class="btn btn-num" data-num="0">0</button>
+<button class="btn btn-num" data-num=",">,</button>
+<button class="btn btn-op" id="eq" data-op="=">=</button>
+</div>
+</div>
+<div id="av">
+<div id="av-h"><button id="avb" onclick="AB()">‹</button><div id="avt">AV</div><button id="avx" onclick="AX()">✕</button></div>
+<div id="avc"></div>
+</div>
+<script>
+var d='0',pv=null,op=null,fr=true,lN=null,lO=null,$=document.getElementById('display');
+function U(){var s=d,l=s.replace(/[^0-9]/g,'').length;$.style.fontSize=l>11?'min(46px,10vw)':l>9?'min(58px,12vw)':l>8?'min(70px,15vw)':'min(88px,18vw)';$.textContent=s.replace(/\./g,',');document.getElementById('acb').textContent=(d!=='0'&&!fr)?'C':'AC'}
+function N(n){var c=n===','?'.':n;if(c==='.'&&d.includes('.'))return;if(fr){d=c==='.'?'0.':c;fr=false}else{d=d==='0'&&c!=='.'?c:d+c}U();CH()}
+function O(o){if(o==='='){if(pv!==null&&op){lN=parseFloat(d);lO=op;d=String(K(parseFloat(pv),parseFloat(d),op));op=null;pv=null;fr=true;U();CH()}else if(lO&&lN!==null){d=String(K(parseFloat(d),lN,lO));fr=true;U()}return}lN=null;lO=null;if(pv!==null&&op&&!fr)d=String(K(parseFloat(pv),parseFloat(d),op));pv=d;op=o;fr=true;U();document.querySelectorAll('.btn-op').forEach(function(b){b.classList.toggle('hi',b.dataset.op===o&&o!=='=')})}
+function K(a,b,o){var r=o==='+'?a+b:o==='−'?a-b:o==='×'?a*b:o==='÷'?b?a/b:NaN:a;return Math.round(r*1e10)/1e10}
+function CH(){document.querySelectorAll('.btn-op').forEach(function(b){b.classList.remove('hi')})}
+function FN(f){if(f==='ac'){if(d!=='0'&&!fr){d='0';fr=false}else{d='0';pv=null;op=null;fr=true;lN=null;lO=null}CH();U()}else if(f==='sign'){if(d!=='0'){d=String(-parseFloat(d));U()}}else if(f==='pct'){d=String(parseFloat(d)/100);fr=true;U()}else if(f==='bs'){if(!fr&&d.length>1){d=d.slice(0,-1);if(d==='-')d='0'}else d='0';U()}}
+document.querySelectorAll('[data-num]').forEach(function(b){b.onclick=function(){N(b.dataset.num)}});
+document.querySelectorAll('[data-op]').forEach(function(b){b.onclick=function(){O(b.dataset.op)}});
+document.querySelectorAll('[data-fn]').forEach(function(b){b.onclick=function(){FN(b.dataset.fn)}});
+var ht=null,eq=document.getElementById('eq');
+function hs(){ht=setTimeout(function(){EA();ht=null},2000)}
+function he(){if(ht){clearTimeout(ht);ht=null;O('=')}}
+eq.addEventListener('touchstart',function(e){e.preventDefault();hs()},{passive:false});
+eq.addEventListener('touchend',he);eq.addEventListener('touchcancel',function(){if(ht){clearTimeout(ht);ht=null}});
+eq.addEventListener('mousedown',hs);eq.addEventListener('mouseup',he);eq.addEventListener('mouseleave',function(){if(ht){clearTimeout(ht);ht=null}});
+var ah=[],_c=document.getElementById('calc'),_a=document.getElementById('av'),_v=document.getElementById('avc'),_t=document.getElementById('avt');
+function EA(){_c.style.display='none';_a.style.display='flex';ah=[];SM();if(navigator.vibrate)navigator.vibrate(50)}
+function AX(){_a.style.display='none';_c.style.display='flex';FN('ac')}
+function AB(){ah.length>1?(ah.pop(),ah[ah.length-1].f()):AX()}
+function AN(t,f){ah.push({t:t,f:f});_t.textContent=t;f()}
+var V0=343.4;function VS(t){return t==null?V0:331.4+.6*t}function F(n,x){if(x==null)x=2;if(isNaN(n)||!isFinite(n))return'Error';return String(Number(n.toFixed(x))).replace(/\./g,',')}function FS(n){return Math.abs(n)<.001||Math.abs(n)>=1e7?n.toExponential(2).replace('.',','):F(n)}
+function SM(){AN('AV',function(){_v.innerHTML='<div class="mn"><button class="mb" onclick="M1()"><span class="mi">🔊</span><span class="ml">V / f / λ / t</span><span class="md">Velocidad, frecuencia, λ, periodo</span></button><button class="mb" onclick="M2()"><span class="mi">📊</span><span class="ml">Decibelios</span><span class="md">dB ↔ unidades</span></button><button class="mb" onclick="M3()"><span class="mi">📐</span><span class="ml">Comb Filter</span><span class="md">Tabla + gráfica</span></button><button class="mb" onclick="M4()"><span class="mi">🔈</span><span class="ml">SPL a distancia</span><span class="md">Sens + W → dBSPL</span></button><button class="mb" onclick="M5()"><span class="mi">⚡</span><span class="ml">Potencia</span><span class="md">SPL + dist → W</span></button><button class="mb" onclick="M6()"><span class="mi">〰️</span><span class="ml">Fase</span><span class="md">φ = 360 × f × t</span></button><button class="mb" onclick="M7()"><span class="mi">📏</span><span class="ml">Ley inversa</span><span class="md">Caída por distancia</span></button><button class="mb" onclick="M8()"><span class="mi">🎯</span><span class="ml">Directividad</span><span class="md">Tamaño vs λ</span></button></div>'})}
+function RM(e){e.parentElement.querySelectorAll('.rd').forEach(function(x){x.classList.remove('on')});e.classList.add('on')}
+function GV(id){return parseFloat(document.getElementById(id).value)}
+function GO(id){var v=document.getElementById(id).value;return v===''?null:parseFloat(v)}
+function SR(s,f){document.getElementById('R').innerHTML='<div class="ar"><div class="at">'+s+'</div></div><div class="af2">'+f+'</div>'}
+// M1: V/f/λ/t
+function M1(){AN('V / f / λ / t',function(){_v.innerHTML='<div class="af"><div class="al">Calcular</div><div class="rg" id="vm"><div class="rd on" onclick="RM(this);VS1(\'l\')">λ</div><div class="rd" onclick="RM(this);VS1(\'f\')">f</div><div class="rd" onclick="RM(this);VS1(\'t\')">t</div><div class="rd" onclick="RM(this);VS1(\'v\')">V</div></div><div id="VF"></div><div id="R"></div></div>';VS1('l')})}
+var pU='ms',lU='m';
+function VS1(m){var h='',R=document.getElementById('R');if(R)R.innerHTML='';
+if(m==='l')h='<div class="al">Frecuencia (Hz)</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Temperatura ºC (opc, def 20)</div><input class="ai" id="b" type="number" inputmode="decimal" placeholder="20"><button class="ab" onclick="XL()">Calcular λ</button>';
+else if(m==='f')h='<div class="al">Dato de entrada</div><div class="rg"><div class="rd on" onclick="RM(this);FS1(\'t\')">Periodo</div><div class="rd" onclick="RM(this);FS1(\'l\')">λ</div></div><div id="FF"></div>';
+else if(m==='t')h='<div class="al">Frecuencia (Hz)</div><input class="ai" id="a" type="number" inputmode="decimal"><button class="ab" onclick="XT()">Calcular t</button>';
+else h='<div class="al">Temperatura ºC</div><input class="ai" id="a" type="number" inputmode="decimal"><button class="ab" onclick="XV()">Calcular V</button>';
+document.getElementById('VF').innerHTML=h;if(m==='f')FS1('t')}
+function FS1(s){var c=document.getElementById('FF');
+if(s==='t')c.innerHTML='<div class="al">Periodo</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Unidad</div><div class="rg"><div class="rd on" onclick="RM(this);pU=\'ms\'">ms</div><div class="rd" onclick="RM(this);pU=\'s\'">s</div></div><button class="ab" onclick="XFT()">Calcular f</button>';
+else c.innerHTML='<div class="al">Longitud de onda</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Unidad</div><div class="rg"><div class="rd on" onclick="RM(this);lU=\'m\'">m</div><div class="rd" onclick="RM(this);lU=\'cm\'">cm</div><div class="rd" onclick="RM(this);lU=\'mm\'">mm</div><div class="rd" onclick="RM(this);lU=\'dm\'">dm</div></div><div class="al">Temp ºC (opc)</div><input class="ai" id="b" type="number" inputmode="decimal" placeholder="20"><button class="ab" onclick="XFL()">Calcular f</button>'}
+function XL(){var f=GV('a'),T=GO('b'),V=VS(T),l=V/f;if(!f)return;var s='';if(T!=null)s+='<span class="d">V a '+F(T,0)+'ºC:</span>\nV = 331,4 + 0,6 · '+F(T,0)+' = 331,4 + '+F(.6*T)+' = <span class="h">'+F(V)+' m/s</span>\n\n';else s+='<span class="d">V = 343,4 m/s (20ºC)</span>\n\n';s+='<span class="d">λ = V / f</span>\nλ = '+F(V)+' / '+F(f,0)+' = <span class="h">'+F(l,4)+' m</span>';if(l<1&&l>=.01)s+=' = <span class="h">'+F(l*100,2)+' cm</span>';else if(l<.01)s+=' = <span class="h">'+F(l*1000,2)+' mm</span>';s+='\n\n<span class="d">t = 1 / f</span>\nt = 1 / '+F(f,0)+' = <span class="h">'+FS(1/f)+' s</span> = <span class="h">'+F(1/f*1000,4)+' ms</span>';SR(s,'λ = '+F(l,4)+' m'+(l<1?' = '+F(l*100,2)+' cm':''))}
+function XFT(){var v=GV('a');if(!v)return;var t=pU==='ms'?v/1000:v,f=1/t,s='';if(pU==='ms')s+='<span class="d">A segundos:</span>\n'+F(v)+' ms / 1000 = '+FS(t)+' s\n\n';s+='<span class="d">f = 1 / t</span>\nf = 1 / '+FS(t)+' = <span class="h">'+F(f,2)+' Hz</span>';SR(s,'f = '+F(f,2)+' Hz')}
+function XFL(){var v=GV('a'),T=GO('b'),V=VS(T),c={m:1,cm:.01,mm:.001,dm:.1},l=v*c[lU],f=V/l,s='';if(!v)return;if(lU!=='m')s+='<span class="d">A metros:</span>\n'+F(v)+' '+lU+' = '+F(l,4)+' m\n\n';if(T!=null)s+='<span class="d">V a '+F(T,0)+'ºC = '+F(V)+' m/s</span>\n\n';s+='<span class="d">f = V / λ</span>\nf = '+F(V)+' / '+F(l,4)+' = <span class="h">'+F(f,2)+' Hz</span>';SR(s,'f = '+F(f,2)+' Hz')}
+function XT(){var f=GV('a');if(!f)return;var t=1/f;SR('<span class="d">t = 1 / f</span>\nt = 1 / '+F(f,0)+' = <span class="h">'+FS(t)+' s</span> = <span class="h">'+F(t*1000,4)+' ms</span>','t = '+F(t*1000,4)+' ms')}
+function XV(){var T=GV('a');if(isNaN(T))return;var V=VS(T);SR('<span class="d">V = 331,4 + 0,6 · T</span>\nV = 331,4 + 0,6 · '+F(T,0)+' = 331,4 + '+F(.6*T)+' = <span class="h">'+F(V)+' m/s</span>','V = '+F(V)+' m/s')}
+// M2: dB
+var dD='to',dCM='20';
+var DT={dBW:{r:1,m:10,u:'W',n:'dBW',s:'1'},dBm:{r:.001,m:10,u:'W',n:'dBm',s:'0,001'},dBV:{r:1,m:20,u:'V',n:'dBV',s:'1'},dBu:{r:.775,m:20,u:'V',n:'dBu',s:'0,775'},dBSPL:{r:2e-5,m:20,u:'Pa',n:'dBSPL',s:'2×10⁻⁵'},dBFS:{r:1,m:20,u:'',n:'dBFS',s:'1'}};
+function M2(){AN('Decibelios',function(){_v.innerHTML='<div class="af"><div class="al">Dirección</div><div class="rg"><div class="rd on" onclick="RM(this);dD=\'to\'">Unidades → dB</div><div class="rd" onclick="RM(this);dD=\'from\'">dB → Unidades</div></div><div class="al">Tipo</div><select class="as" id="dt" onchange="document.getElementById(\'dc\').style.display=this.value===\'custom\'?\'block\':\'none\'"><option value="dBW">dBW (1 W)</option><option value="dBm">dBm (0,001 W)</option><option value="dBV">dBV (1 V)</option><option value="dBu">dBu (0,775 V)</option><option value="dBSPL">dBSPL (2×10⁻⁵ Pa)</option><option value="dBFS">dBFS (1 máx)</option><option value="custom">Personalizada</option></select><div id="dc" style="display:none"><div class="al">Nombre</div><input class="ai" id="cn" placeholder="manzanas"><div class="al">Referencia</div><input class="ai" id="cr" type="number" inputmode="decimal"><div class="al">Magnitud</div><div class="rg"><div class="rd on" onclick="RM(this);dCM=\'20\'">20·log</div><div class="rd" onclick="RM(this);dCM=\'10\'">10·log</div></div></div><div class="al">Valor</div><input class="ai" id="a" type="number" inputmode="decimal"><button class="ab" onclick="XDB()">Calcular</button><div id="R"></div></div>'})}
+function XDB(){var tp=document.getElementById('dt').value,v=GV('a');if(isNaN(v))return;var r,m,u,n,rs;if(tp==='custom'){n='dB'+document.getElementById('cn').value;r=parseFloat(document.getElementById('cr').value);m=parseInt(dCM);u=document.getElementById('cn').value;rs=F(r)}else{var t=DT[tp];r=t.r;m=t.m;u=t.u;n=t.n;rs=t.s}var s='',re;
+if(dD==='to'){var rat=v/r,db=m*Math.log10(rat);s='<span class="d">'+( u||'unidades')+' → '+n+':</span>\n'+m+' × log('+FS(v)+' / '+rs+')\n= '+m+' × log('+FS(rat)+')\n= '+m+' × '+F(Math.log10(rat),4)+'\n= <span class="h">'+F(db,2)+' '+n+'</span>';re=F(db,2)+' '+n}
+else{var pw=v/m,li=r*Math.pow(10,pw);s='<span class="d">'+n+' → '+(u||'unidades')+':</span>\n'+rs+' × 10^('+F(v)+' / '+m+')\n= '+rs+' × 10^('+F(pw,4)+')\n= '+rs+' × '+FS(Math.pow(10,pw))+'\n= <span class="h">'+FS(li)+' '+u+'</span>';re=FS(li)+' '+u;if(tp==='dBW')s+='\n<span class="d">= '+FS(li*1000)+' mW</span>';if(tp==='dBm'&&li>=1)s+='\n<span class="d">= '+FS(li)+' W</span>'}SR(s,re)}
+// M3: Comb
+var cU='ms';
+function M3(){AN('Comb Filter',function(){_v.innerHTML='<div class="af"><div class="al">Retardo</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Unidad</div><div class="rg"><div class="rd on" onclick="RM(this);cU=\'ms\'">ms</div><div class="rd" onclick="RM(this);cU=\'s\'">s</div><div class="rd" onclick="RM(this);cU=\'m\'">metros</div></div><div class="al">Freq máxima (Hz)</div><input class="ai" id="b" type="number" inputmode="decimal" value="20000"><button class="ab" onclick="XCF()">Calcular</button><div id="R"></div></div>'})}
+function XCF(){var v=GV('a'),fm=GV('b')||20000;if(!v)return;var t,s='';if(cU==='ms'){t=v/1000;s+='<span class="d">A segundos:</span>\n'+F(v)+' / 1000 = '+FS(t)+' s\n\n'}else if(cU==='m'){t=v/V0;s+='<span class="d">Distancia → tiempo:</span>\nt = '+F(v)+' / '+F(V0)+' = '+FS(t)+' s = '+F(t*1000,4)+' ms\n\n'}else t=v;
+var sp=1/t,cn=1/(2*t),k=360*t,f1=120/k,f2=240/k;s+='<span class="d">Separación (+6 dB):</span>\nf = 1 / t = 1 / '+FS(t)+' = <span class="h">'+F(sp,2)+' Hz</span>\n\n';s+='<span class="d">1ª cancelación (180°):</span>\nf = 1 / (2 × '+FS(t)+') = <span class="h">'+F(cn,2)+' Hz</span>\n\n';s+='<span class="d">Puntos clave — f = φ / (360 × t):</span>\n360 × '+FS(t)+' = '+F(k,4)+'\n120° → '+F(f1,0)+' Hz (0 dB)\n240° → '+F(f2,0)+' Hz (0 dB)\n';
+var rw=[],cy=0,ff=0;while(ff<=fm){var pk=cy*sp,z1=pk+f1,ca=pk+cn,z2=pk+f2;if(pk>fm)break;rw.push({c:cy+1,p:Math.round(pk),z:Math.round(z1),a:Math.round(ca),z2:Math.round(z2)});ff=pk+sp;cy++}
+var tb='<table class="tb"><tr><th>Ciclo</th><th class="pk">+6 dB</th><th class="zr">0 dB</th><th class="ca">Cancela</th><th class="zr">0 dB</th></tr>';for(var i=0;i<rw.length;i++){var r=rw[i];function sh(v,c){return v<=fm?'<td class="'+c+'">'+v+'</td>':'<td class="'+c+'">—</td>'}tb+='<tr><td>'+r.c+'</td>'+sh(r.p,'pk')+sh(r.z,'zr')+sh(r.a,'ca')+sh(r.z2,'zr')+'</tr>'}tb+='</table>';
+var cc=rw.filter(function(r){return r.a<=fm}).length;s+='\n<span class="d">Cancelaciones hasta '+F(fm,0)+' Hz: <span class="h">'+cc+'</span></span>';
+var pe=360*fm*t,fc=Math.floor(pe/360),rm=pe-fc*360;s+='\n\n<span class="d">Comprobación '+F(fm,0)+' Hz:</span>\nφ = 360 × '+F(fm,0)+' × '+FS(t)+' = '+F(pe,1)+'°\n'+F(pe,1)+' / 360 = '+F(pe/360,2)+' ciclos';if(rm<1)s+=' → <span class="h">en fase (+6 dB)</span>';else if(Math.abs(rm-180)<1)s+=' → <span class="h">cancelación</span>';else s+=' → sobran '+F(rm,1)+'°';
+document.getElementById('R').innerHTML='<div class="ar"><div class="at">'+s+'</div></div>'+tb+'<canvas id="cc" width="800" height="300"></canvas>';
+var cv=document.getElementById('cc');if(!cv)return;var x=cv.getContext('2d'),W=cv.width,H=cv.height,pL=50,pR=20,pT=30,pB=40,gW=W-pL-pR,gH=H-pT-pB;x.fillStyle='#1c1c1e';x.fillRect(0,0,W,H);x.strokeStyle='#444';x.lineWidth=1;x.beginPath();x.moveTo(pL,pT);x.lineTo(pL,pT+gH);x.lineTo(pL+gW,pT+gH);x.stroke();function yP(db){return pT+gH*(1-(db+30)/36)}function xP(f){return pL+gW*(f/fm)}x.fillStyle='#8e8e93';x.font='11px -apple-system,sans-serif';x.textAlign='right';[6,0,-6,-12,-18,-24,-30].forEach(function(db){var y=yP(db);x.fillText(db,pL-6,y+4);x.strokeStyle=db===0?'#666':'#333';x.beginPath();x.moveTo(pL,y);x.lineTo(pL+gW,y);x.stroke()});x.textAlign='center';var xs=fm<=5000?500:fm<=10000?1000:2000;for(var f=0;f<=fm;f+=xs){var px=xP(f);x.fillStyle='#8e8e93';x.fillText(f>=1000?(f/1000)+'k':f,px,pT+gH+18)}x.strokeStyle='#ff9f0a';x.lineWidth=2;x.beginPath();for(var i=0;i<=800;i++){var f=fm*i/800,ph=2*Math.PI*f*t,a=2*Math.cos(ph/2),db=a>.001?20*Math.log10(a):-30;if(db<-30)db=-30;var px=xP(f),py=yP(db);i===0?x.moveTo(px,py):x.lineTo(px,py)}x.stroke();x.fillStyle='#fff';x.font='bold 13px -apple-system,sans-serif';x.textAlign='center';x.fillText('Comb filter, retardo '+F(t*1000,2)+' ms',W/2,18)}
+// M4: SPL dist
+function M4(){AN('SPL a distancia',function(){_v.innerHTML='<div class="af"><div class="al">Sensibilidad (dB SPL 1W/1m)</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Potencia (W)</div><input class="ai" id="b" type="number" inputmode="decimal"><div class="al">Distancia (m)</div><input class="ai" id="c" type="number" inputmode="decimal"><button class="ab" onclick="XSD()">Calcular SPL</button><div id="R"></div></div>'})}
+function XSD(){var se=GV('a'),w=GV('b'),dd=GV('c');if(!se||!w||!dd)return;var gw=10*Math.log10(w),s1=se+gw,ld=20*Math.log10(1/dd),sf=s1+ld;var s='<span class="d">Ganancia por potencia:</span>\n10 × log('+F(w,0)+' / 1) = <span class="h">'+F(gw,2)+' dB</span>\n\n<span class="d">SPL a 1 m:</span>\n'+F(se,0)+' + '+F(gw,2)+' = <span class="h">'+F(s1,2)+' dB SPL</span>\n\n<span class="d">Pérdida por distancia:</span>\n20 × log(1 / '+F(dd,0)+') = <span class="h">'+F(ld,2)+' dB</span>\n\n<span class="d">SPL a '+F(dd,0)+' m:</span>\n'+F(s1,2)+' + ('+F(ld,2)+') = <span class="h">'+F(sf,2)+' dB SPL</span>';var pa=2e-5*Math.pow(10,sf/20);s+='\n\n<span class="d">Presión:</span>\n2×10⁻⁵ × 10^('+F(sf,2)+' / 20) = <span class="h">'+F(pa,2)+' Pa</span>';SR(s,F(sf,2)+' dB SPL a '+F(dd,0)+' m')}
+// M5: Potencia
+function M5(){AN('Potencia',function(){_v.innerHTML='<div class="af"><div class="al">Sensibilidad (dB SPL 1W/1m)</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">SPL objetivo (dB SPL)</div><input class="ai" id="b" type="number" inputmode="decimal"><div class="al">Distancia (m)</div><input class="ai" id="c" type="number" inputmode="decimal"><button class="ab" onclick="XPW()">Calcular W</button><div id="R"></div></div>'})}
+function XPW(){var se=GV('a'),sp=GV('b'),dd=GV('c');if(!se||isNaN(sp)||!dd)return;var ld=20*Math.log10(1/dd),s1=sp-ld,dp=s1-se,w=Math.pow(10,dp/10);var s='<span class="d">Pérdida por distancia:</span>\n20 × log(1 / '+F(dd,0)+') = <span class="h">'+F(ld,2)+' dB</span>\n\n<span class="d">SPL necesario a 1 m:</span>\n'+F(sp,0)+' + '+F(Math.abs(ld),2)+' = <span class="h">'+F(s1,2)+' dB SPL</span>\n\n<span class="d">Aporta la potencia:</span>\n'+F(s1,2)+' − '+F(se,0)+' = <span class="h">'+F(dp,2)+' dB</span>\n\n<span class="d">Potencia:</span>\n1 × 10^('+F(dp,2)+' / 10) = <span class="h">'+FS(w)+' W</span>';if(w>=1000)s+=' ≈ '+F(w/1000,2)+' kW';s+='\n\n<span class="d">Headroom:</span>\n+3 dB → '+FS(w*2)+' W\n+6 dB → '+FS(w*4)+' W\n+10 dB → '+FS(w*10)+' W';SR(s,FS(w)+' W')}
+// M6: Fase
+var fU='ms';
+function M6(){AN('Fase',function(){_v.innerHTML='<div class="af"><div class="al">Frecuencia (Hz)</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Tiempo de diferencia</div><input class="ai" id="b" type="number" inputmode="decimal"><div class="al">Unidad</div><div class="rg"><div class="rd on" onclick="RM(this);fU=\'ms\'">ms</div><div class="rd" onclick="RM(this);fU=\'s\'">s</div></div><button class="ab" onclick="XPH()">Calcular</button><div id="R"></div></div>'})}
+function XPH(){var f=GV('a'),tv=GV('b');if(!f||isNaN(tv))return;var t=fU==='ms'?tv/1000:tv,ph=360*f*t,s='';if(fU==='ms')s+='<span class="d">A segundos:</span>\n'+F(tv)+' ms / 1000 = '+FS(t)+' s\n\n';s+='<span class="d">Desfase:</span>\nφ = 360 × f × t\nφ = 360 × '+F(f,0)+' × '+FS(t)+' = <span class="h">'+F(ph,2)+'°</span>\n\n';var fc=Math.floor(ph/360),rm=ph-fc*360;if(ph>360)s+='<span class="d">Ciclos:</span>\n'+F(ph,2)+' / 360 = '+F(ph/360,2)+'\nCompletos: '+fc+' → Resto: '+F(ph/360-fc,2)+' × 360 = <span class="h">'+F(rm,2)+'°</span>\n\n';var ep=ph>360?rm:ph,cr=Math.cos(ep*Math.PI/360),am=2*cr,db;if(Math.abs(am)<1e-10)db=-Infinity;else db=20*Math.log10(Math.abs(am));s+='<span class="d">Nivel:</span>\n20 × log(2 × cos('+F(ep,2)+'° / 2))\n= 20 × log(2 × cos('+F(ep/2,2)+'°))\n= 20 × log(2 × '+F(cr,4)+')\n= 20 × log('+F(am,4)+')\n';if(isFinite(db))s+='= <span class="h">'+F(db,2)+' dB</span>';else s+='= <span style="color:#ff3b30">−∞ dB (cancelación total)</span>';s+='\n\n<span class="d">Interpretación:</span>\n';if(ep<10||ep>350)s+='En fase → <span class="h">≈ +6 dB</span>';else if(ep<120)s+='Fase parcial → <span class="h">+'+F(db,2)+' dB</span>';else if(Math.abs(ep-120)<5||Math.abs(ep-240)<5)s+='Frontera → <span class="h">0 dB</span>';else if(Math.abs(ep-180)<5)s+='Contrafase → <span style="color:#ff3b30">cancelación</span>';else if(ep>120&&ep<240)s+='Cancelación parcial → <span style="color:#ff3b30">'+F(db,2)+' dB</span>';else s+='Suma parcial → <span class="h">'+F(db,2)+' dB</span>';SR(s,isFinite(db)?F(ep,2)+'° → '+F(db,2)+' dB':F(ep,2)+'° → Cancelación')}
+// M7: Ley inversa
+function M7(){AN('Ley inversa',function(){_v.innerHTML='<div class="af"><div class="al">Nivel conocido (dB SPL)</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Distancia conocida (m)</div><input class="ai" id="b" type="number" inputmode="decimal" value="1"><div class="al">Distancia objetivo (m)</div><input class="ai" id="c" type="number" inputmode="decimal"><button class="ab" onclick="XIV()">Calcular</button><div id="R"></div></div>'})}
+function XIV(){var db=GV('a'),d1=GV('b'),d2=GV('c');if(isNaN(db)||!d1||!d2)return;var dl=20*Math.log10(d1/d2),df=db+dl;SR('<span class="d">ΔL = 20 × log(d₁ / d₂)</span>\n= 20 × log('+F(d1)+' / '+F(d2)+')\n= 20 × '+F(Math.log10(d1/d2),4)+'\n= <span class="h">'+F(dl,2)+' dB</span>\n\n<span class="d">Nivel a '+F(d2)+' m:</span>\n'+F(db,2)+' + ('+F(dl,2)+') = <span class="h">'+F(df,2)+' dB SPL</span>',F(df,2)+' dB SPL a '+F(d2)+' m')}
+// M8: Directividad
+var rU='m';
+function M8(){AN('Directividad',function(){_v.innerHTML='<div class="af"><div class="al">Tamaño fuente</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Unidad</div><div class="rg"><div class="rd on" onclick="RM(this);rU=\'m\'">m</div><div class="rd" onclick="RM(this);rU=\'cm\'">cm</div><div class="rd" onclick="RM(this);rU=\'mm\'">mm</div></div><div class="al">Frecuencia (Hz)</div><input class="ai" id="b" type="number" inputmode="decimal"><div class="al">Temp ºC (opc)</div><input class="ai" id="c" type="number" inputmode="decimal" placeholder="20"><button class="ab" onclick="XDR()">Calcular</button><div id="R"></div></div>'})}
+function XDR(){var sz=GV('a'),f=GV('b'),T=GO('c'),V=VS(T);if(!sz||!f)return;var c={m:1,cm:.01,mm:.001},sm=sz*c[rU],l=V/f,s='';if(rU!=='m')s+='<span class="d">A metros:</span>\n'+F(sz)+' '+rU+' = '+F(sm,4)+' m\n\n';if(T!=null)s+='<span class="d">V a '+F(T,0)+'ºC = '+F(V)+' m/s</span>\n\n';s+='<span class="d">λ = V / f = '+F(V)+' / '+F(f,0)+' = <span class="h">'+F(l,4)+' m</span></span>\n\n';if(sm>l)s+=F(sm,4)+' m > '+F(l,4)+' m → <span class="h">Más directiva</span>';else s+=F(sm,4)+' m < '+F(l,4)+' m → <span class="h">Omnidireccional</span>';var fl=V/sm;s+='\n\n<span class="d">Freq límite difracción:</span>\nf = '+F(V)+' / '+F(sm,4)+' = <span class="h">'+F(fl,0)+' Hz</span>\nPor debajo → la onda rodea el objeto';SR(s,sm>l?'Más directiva':'Omnidireccional')}
+</script>
+</body>
+</html>
