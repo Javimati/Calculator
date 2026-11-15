@@ -139,6 +139,38 @@ input,select,textarea{-webkit-user-select:text;user-select:text}
 /* ===== TOAST ===== */
 #toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(50,50,52,.9);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);color:#fff;padding:10px 24px;border-radius:20px;font-size:15px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
 #toast.show{opacity:1}
+
+/* ===== Estilo redondeado (cápsulas) ===== */
+:root{--rh:clamp(34px,5.3dvh,48px);--edge:inset 0 1px 0 rgba(255,255,255,.13),inset 0 0 0 1px rgba(255,255,255,.07)}
+.btn,.sci-btn{box-shadow:var(--edge)}
+.btn-num{background:#2a2a2c}
+.btn-fn{background:#5b5b5e;color:#fff}
+.btn-fn svg{stroke:#fff}
+.btn-op{background:#f39a36}
+.btn-op.hi{background:#fff;color:#f39a36}
+.top-icon{background:#1c1c1e;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.top-icon svg{stroke:#fff}
+.top-icon svg rect{fill:#fff}
+.sci-btn{background:#1c1c1e;border-radius:999px;font-size:17px;font-weight:400}
+.sci-btn.active-2nd{background:#5b5b5e}
+.sci-btn .lb{display:inline-block;white-space:nowrap;line-height:1.2}
+.sci-btn sup{font-size:.62em;line-height:0;position:relative;top:-.55em;vertical-align:baseline}
+.sci-btn sub{font-size:.62em;line-height:0;position:relative;top:.3em;vertical-align:baseline}
+.sci-btn .ov{text-decoration:overline}
+body.sci .btn{border-radius:999px}
+@media (orientation:portrait){
+body.sci #calc{padding-left:14px;padding-right:14px}
+body.sci #display-area{flex:1 1 auto;min-height:56px;padding:0 4px 10px 0}
+body.sci #deg-indicator{align-self:flex-start;margin-bottom:auto;order:-1}
+body.sci .sci-grid{flex:0 0 auto;grid-auto-rows:var(--rh);gap:8px 7px;padding-bottom:8px}
+body.sci .btn-grid{flex:0 0 auto;grid-auto-rows:var(--rh);gap:8px 7px;padding-bottom:12px}
+body.sci .btn{height:auto;font-size:24px}
+body.sci .btn-op{font-size:28px}
+body.sci .btn-fn{font-size:20px}
+}
+@media (orientation:landscape){
+body.sci .sci-btn{border-radius:999px;font-size:15px}
+}
 </style>
 </head>
 <body>
@@ -725,9 +757,9 @@ var sciButtonsNormal = [
 ];
 var sciLabelsNormal = [
   ['(', ')', 'mc', 'm+', 'm−', 'mr'],
-  ['2ⁿᵈ', 'x²', 'x³', 'xʸ', 'eˣ', '10ˣ'],
-  ['1/x', '²√x', '³√x', 'ʸ√x', 'ln', 'log₁₀'],
-  ['x!', 'sin', 'cos', 'tan', 'e', 'EE'],
+  ['2<sup>nd</sup>', 'x<sup>2</sup>', 'x<sup>3</sup>', 'x<sup>y</sup>', '<i>e</i><sup>x</sup>', '10<sup>x</sup>'],
+  ['1/x', '<sup>2</sup>√<span class="ov">x</span>', '<sup>3</sup>√<span class="ov">x</span>', '<sup>y</sup>√<span class="ov">x</span>', 'ln', 'log<sub>10</sub>'],
+  ['x!', 'sin', 'cos', 'tan', '<i>e</i>', 'EE'],
   ['Rand', 'sinh', 'cosh', 'tanh', 'π', 'DR']
 ];
 var sciButtons2nd = [
@@ -739,10 +771,10 @@ var sciButtons2nd = [
 ];
 var sciLabels2nd = [
   ['(', ')', 'mc', 'm+', 'm−', 'mr'],
-  ['2ⁿᵈ', 'x²', 'x³', 'xʸ', 'yˣ', '2ˣ'],
-  ['1/x', '²√x', '³√x', 'ʸ√x', 'logᵧ', 'log₂'],
-  ['x!', 'sin⁻¹', 'cos⁻¹', 'tan⁻¹', 'e', 'EE'],
-  ['Rand', 'sinh⁻¹', 'cosh⁻¹', 'tanh⁻¹', 'π', 'DR']
+  ['2<sup>nd</sup>', 'x<sup>2</sup>', 'x<sup>3</sup>', 'x<sup>y</sup>', 'y<sup>x</sup>', '2<sup>x</sup>'],
+  ['1/x', '<sup>2</sup>√<span class="ov">x</span>', '<sup>3</sup>√<span class="ov">x</span>', '<sup>y</sup>√<span class="ov">x</span>', 'log<sub>y</sub>', 'log<sub>2</sub>'],
+  ['x!', 'sin<sup>−1</sup>', 'cos<sup>−1</sup>', 'tan<sup>−1</sup>', '<i>e</i>', 'EE'],
+  ['Rand', 'sinh<sup>−1</sup>', 'cosh<sup>−1</sup>', 'tanh<sup>−1</sup>', 'π', 'DR']
 ];
 
 function buildSciGrid() {
@@ -755,7 +787,7 @@ function buildSciGrid() {
       var btn = document.createElement('button');
       btn.className = 'sci-btn';
       // Como en iOS: el boton muestra el modo al que cambias; el indicador muestra el modo activo
-      btn.textContent = funcs[r][c] === 'DR' ? (isDeg ? 'Rad' : 'Deg') : labels[r][c];
+      btn.innerHTML = '<span class="lb">' + (funcs[r][c] === 'DR' ? (isDeg ? 'Rad' : 'Deg') : labels[r][c]) + '</span>';
       btn.dataset.sci = funcs[r][c];
       if (funcs[r][c] === '2nd' && is2nd) btn.classList.add('active-2nd');
       if (funcs[r][c] === 'mr' && memHasValue) btn.classList.add('mem-active');
@@ -900,9 +932,9 @@ function initBtnAnimations() {
   document.querySelectorAll('.btn').forEach(function(btn) {
     function press() {
       btn.style.transition = 'none';
-      if (btn.classList.contains('btn-num')) btn.style.backgroundColor = '#666';
-      else if (btn.classList.contains('btn-op')) btn.style.backgroundColor = btn.classList.contains('hi') ? '#e0e0e0' : '#ffc966';
-      else if (btn.classList.contains('btn-fn')) btn.style.backgroundColor = '#d4d4d4';
+      if (btn.classList.contains('btn-num')) btn.style.backgroundColor = '#555';
+      else if (btn.classList.contains('btn-op')) btn.style.backgroundColor = btn.classList.contains('hi') ? '#e0e0e0' : '#ffc27a';
+      else if (btn.classList.contains('btn-fn')) btn.style.backgroundColor = '#8a8a8d';
     }
     function release() {
       btn.style.transition = 'background-color 0.2s ease-out';
@@ -924,7 +956,7 @@ var sciObserver = new MutationObserver(function() {
     btn._animBound = true;
     function press() {
       btn.style.transition = 'none';
-      btn.style.backgroundColor = btn.classList.contains('active-2nd') ? '#777' : '#555';
+      btn.style.backgroundColor = btn.classList.contains('active-2nd') ? '#8a8a8d' : '#3a3a3c';
     }
     function release() {
       btn.style.transition = 'background-color 0.2s ease-out';
