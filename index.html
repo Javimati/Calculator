@@ -233,8 +233,33 @@ body.sci .top-icon{width:34px;height:34px}
 body.sci .top-icon svg{width:22px;height:22px}
 }
 /* App en pantalla de inicio (iOS): la ventana mide menos que la pantalla y deja un hueco abajo */
-html.sa-fix,html.sa-fix body{height:calc(100% + var(--sat))}
-html.sa-fix #calc,html.sa-fix #av{height:calc(100dvh + var(--sat))}
+
+/* ===== Clon de la científica en vertical (medido sobre la referencia) ===== */
+.sci-btn{background:linear-gradient(180deg,#1b1b1b,#181818);color:#f4f4f4;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.07)}
+.sci-btn i{font-family:'Times New Roman',Times,serif;font-style:italic;font-size:1.12em}
+.sci-btn .rt{height:1.4em;width:1.57em;display:block;overflow:visible}
+.sci-btn .rt text{fill:currentColor;stroke:none;font-family:inherit}
+.sci-btn .rt path{fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
+.sci-btn .fr sup{font-size:.7em;top:-.32em}
+.sci-btn .fr sub{font-size:.7em;top:.14em}
+body.sci .btn-num{background:linear-gradient(180deg,#2b2b2b,#272727)}
+body.sci .btn-fn{background:linear-gradient(180deg,#585858,#515151)}
+@media (orientation:portrait){
+body.sci #calc{padding:var(--sat) calc(var(--u)*3.72) calc(var(--sab) + 28px);max-width:500px}
+body.sci #display-area{padding:0 3px calc(var(--u)*3.1) 0}
+body.sci .sci-grid{flex:0 0 auto;grid-auto-rows:calc(var(--u)*10.93);gap:calc(var(--u)*2.1) calc(var(--u)*1.93);padding-bottom:calc(var(--u)*2.1)}
+body.sci .btn-grid{flex:0 0 auto;grid-auto-rows:calc(var(--u)*10.93);gap:calc(var(--u)*2.1) calc(var(--u)*1.93);padding-bottom:0}
+body.sci .sci-btn{font-size:calc(var(--u)*4.05)}
+body.sci .btn{font-size:calc(var(--u)*5.05)}
+body.sci .btn-fn{font-size:calc(var(--u)*5.05)}
+body.sci .btn[data-fn="pct"]{font-size:calc(var(--u)*5.9)}
+body.sci .btn[data-fn="sign"]{font-size:calc(var(--u)*5.7)}
+body.sci .btn-fn svg{width:calc(var(--u)*5.5)}
+body.sci .op-ic{width:calc(var(--u)*5.9);height:calc(var(--u)*5.9);stroke-width:2.25}
+body.sci #deg-indicator{bottom:calc(var(--u)*3.1 + 6px)}
+}
+/* App en pantalla de inicio (iOS): altura fija igual a la pantalla */
+html.sa-fix,html.sa-fix body,html.sa-fix #calc,html.sa-fix #av{height:var(--app-h)}
 </style>
 </head>
 <body>
@@ -430,7 +455,7 @@ function updateDisplay() {
   var html = buildExpression();
   $disp.innerHTML = html;
   // Tamaño: el máximo del modo, reducido lo justo para que quepa en el ancho
-  var base = isScientific ? (wasLandscape ? 44 : 56) : Math.min(82, window.innerWidth * 0.167);
+  var base = isScientific ? (wasLandscape ? 44 : Math.min(60, window.innerWidth * 0.126)) : Math.min(82, window.innerWidth * 0.167);
   $disp.style.fontSize = base + 'px';
   var avail = $disp.parentElement.clientWidth - 12 - ((isScientific && !isDeg) ? 30 : 0), w = $disp.scrollWidth;
   if (w > avail && w > 0) $disp.style.fontSize = Math.max(16, Math.floor(base * avail / w * 10) / 10) + 'px';
@@ -888,9 +913,9 @@ var sciButtonsNormal = [
   ['Rand', 'sinh', 'cosh', 'tanh', 'pi', 'DR']
 ];
 var sciLabelsNormal = [
-  ['(', ')', 'mc', 'm+', 'm−', 'mr'],
+  ['(', ')', 'mc', 'm+', 'm-', 'mr'],
   ['2<sup>nd</sup>', 'x<sup>2</sup>', 'x<sup>3</sup>', 'x<sup>y</sup>', '<i>e</i><sup>x</sup>', '10<sup>x</sup>'],
-  ['1/x', '<sup>2</sup>√<span class="ov">x</span>', '<sup>3</sup>√<span class="ov">x</span>', '<sup>y</sup>√<span class="ov">x</span>', 'ln', 'log<sub>10</sub>'],
+  ['<span class="fr"><sup>1</sup>⁄<sub>x</sub></span>', '<svg class="rt" viewBox="2 0 28 25" aria-hidden="true"><text x="3.4" y="11.4" font-size="11">2</text><path d="M7.9 14.4l2.2-.9L13.4 22 17.6 4.3h11.2"/><text x="18.4" y="20.7" font-size="18">x</text></svg>', '<svg class="rt" viewBox="2 0 28 25" aria-hidden="true"><text x="3.4" y="11.4" font-size="11">3</text><path d="M7.9 14.4l2.2-.9L13.4 22 17.6 4.3h11.2"/><text x="18.4" y="20.7" font-size="18">x</text></svg>', '<svg class="rt" viewBox="2 0 28 25" aria-hidden="true"><text x="3.4" y="11.4" font-size="11">y</text><path d="M7.9 14.4l2.2-.9L13.4 22 17.6 4.3h11.2"/><text x="18.4" y="20.7" font-size="18">x</text></svg>', 'ln', 'log<sub>10</sub>'],
   ['x!', 'sin', 'cos', 'tan', '<i>e</i>', 'EE'],
   ['Rand', 'sinh', 'cosh', 'tanh', 'π', 'DR']
 ];
@@ -902,9 +927,9 @@ var sciButtons2nd = [
   ['Rand', 'asinh', 'acosh', 'atanh', 'pi', 'DR']
 ];
 var sciLabels2nd = [
-  ['(', ')', 'mc', 'm+', 'm−', 'mr'],
+  ['(', ')', 'mc', 'm+', 'm-', 'mr'],
   ['2<sup>nd</sup>', 'x<sup>2</sup>', 'x<sup>3</sup>', 'x<sup>y</sup>', 'y<sup>x</sup>', '2<sup>x</sup>'],
-  ['1/x', '<sup>2</sup>√<span class="ov">x</span>', '<sup>3</sup>√<span class="ov">x</span>', '<sup>y</sup>√<span class="ov">x</span>', 'log<sub>y</sub>', 'log<sub>2</sub>'],
+  ['<span class="fr"><sup>1</sup>⁄<sub>x</sub></span>', '<svg class="rt" viewBox="2 0 28 25" aria-hidden="true"><text x="3.4" y="11.4" font-size="11">2</text><path d="M7.9 14.4l2.2-.9L13.4 22 17.6 4.3h11.2"/><text x="18.4" y="20.7" font-size="18">x</text></svg>', '<svg class="rt" viewBox="2 0 28 25" aria-hidden="true"><text x="3.4" y="11.4" font-size="11">3</text><path d="M7.9 14.4l2.2-.9L13.4 22 17.6 4.3h11.2"/><text x="18.4" y="20.7" font-size="18">x</text></svg>', '<svg class="rt" viewBox="2 0 28 25" aria-hidden="true"><text x="3.4" y="11.4" font-size="11">y</text><path d="M7.9 14.4l2.2-.9L13.4 22 17.6 4.3h11.2"/><text x="18.4" y="20.7" font-size="18">x</text></svg>', 'log<sub>y</sub>', 'log<sub>2</sub>'],
   ['x!', 'sin<sup>−1</sup>', 'cos<sup>−1</sup>', 'tan<sup>−1</sup>', '<i>e</i>', 'EE'],
   ['Rand', 'sinh<sup>−1</sup>', 'cosh<sup>−1</sup>', 'tanh<sup>−1</sup>', 'π', 'DR']
 ];
@@ -1119,7 +1144,9 @@ function fixStandaloneHeight() {
   var st = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
   var portrait = window.innerHeight >= window.innerWidth;
   var sh = Math.max(screen.width, screen.height);
-  document.documentElement.classList.toggle('sa-fix', st && portrait && sh - window.innerHeight > 20);
+  var on = st && portrait && sh > 0 && Math.abs(sh - window.innerHeight) < 120;
+  if (on) document.documentElement.style.setProperty('--app-h', sh + 'px');
+  document.documentElement.classList.toggle('sa-fix', on);
 }
 fixStandaloneHeight();
 window.addEventListener('resize', fixStandaloneHeight);
