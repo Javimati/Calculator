@@ -17,9 +17,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-ap
 /* ===== CALCULATOR (Portrait/Basic) ===== */
 #calc{display:flex;flex-direction:column;height:100dvh;padding:env(safe-area-inset-top,0) 16px env(safe-area-inset-bottom,0);position:relative}
 #top-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 0;flex-shrink:0}
-.top-icon{width:44px;height:44px;border-radius:50%;background:#2a2a2a;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .1s}
+.top-icon{width:44px;height:44px;border-radius:50%;background:transparent;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .1s}
 .top-icon svg{width:22px;height:22px}
-.top-icon:active{background:#444;transform:scale(0.92)}
+.top-icon:active{background:#333;transform:scale(0.92)}
 
 #display-area{flex:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;padding:0 8px 8px 0;min-height:60px;overflow:hidden}
 #deg-indicator{display:none;font-size:15px;color:#8e8e93;align-self:flex-start;padding:4px 0}
@@ -36,16 +36,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-ap
 .btn-fn svg{width:24px;height:24px;fill:none;stroke:#000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* ===== SCIENTIFIC MODE ===== */
-body.sci #calc{padding:env(safe-area-inset-top,0) 8px env(safe-area-inset-bottom,0)}
+body.sci #calc{padding:env(safe-area-inset-top,0) 6px env(safe-area-inset-bottom,0)}
+body.sci #display-area{flex:0 1 auto;min-height:40px;padding:0 8px 4px 0}
 body.sci #deg-indicator{display:block}
-body.sci .btn-grid{gap:8px}
-body.sci .btn{border-radius:16px;font-size:22px}
-body.sci .btn-op{font-size:26px}
-body.sci .btn-fn{font-size:18px}
+body.sci .btn-grid{gap:6px;padding-bottom:6px}
+body.sci .btn{border-radius:12px;aspect-ratio:auto;font-size:20px;padding:12px 0}
+body.sci .btn-op{font-size:24px}
+body.sci .btn-fn{font-size:16px}
 
-.sci-grid{display:none;grid-template-columns:repeat(6,1fr);gap:6px;padding-bottom:6px;flex-shrink:0}
+.sci-grid{display:none;grid-template-columns:repeat(6,1fr);gap:5px;padding-bottom:4px;flex-shrink:0}
 body.sci .sci-grid{display:grid}
-.sci-btn{display:flex;align-items:center;justify-content:center;background:#2a2a2e;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;padding:10px 2px;cursor:pointer;min-height:36px;-webkit-appearance:none;transition:opacity .05s,background .1s}
+.sci-btn{display:flex;align-items:center;justify-content:center;background:#333;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:500;padding:8px 2px;cursor:pointer;min-height:34px;-webkit-appearance:none;transition:opacity .05s,background .1s}
 .sci-btn:active{opacity:.6}
 .sci-btn.active-2nd{background:#555;color:#fff}
 .sci-btn.mem-active{color:#ff9f0a}
@@ -99,13 +100,13 @@ body.sci .sci-grid{display:grid}
 .rd.on{background:#ff9f0a;color:#fff;font-weight:600}
 
 /* ===== MODE DROPDOWN ===== */
-#mode-dropdown{display:none;position:absolute;top:56px;right:16px;background:#2c2c2e;border-radius:14px;z-index:200;min-width:200px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.5);transform-origin:top right;animation:dropIn .15s ease-out}
+#mode-dropdown{display:none;position:absolute;top:56px;right:16px;background:rgba(44,44,46,.88);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);border-radius:14px;z-index:200;min-width:220px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.55);transform-origin:top right;animation:dropIn .15s ease-out}
 @keyframes dropIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
-#mode-dropdown .mode-opt{display:flex;align-items:center;gap:12px;padding:14px 16px;color:#fff;font-size:16px;font-family:inherit;background:none;border:none;width:100%;cursor:pointer;-webkit-appearance:none}
-#mode-dropdown .mode-opt:active{background:#3a3a3c}
+#mode-dropdown .mode-opt{display:flex;align-items:center;gap:12px;padding:13px 16px;color:#fff;font-size:17px;font-family:inherit;background:none;border:none;width:100%;cursor:pointer;-webkit-appearance:none}
+#mode-dropdown .mode-opt:active{background:rgba(255,255,255,.1)}
 #mode-dropdown .mode-opt+.mode-opt{border-top:1px solid rgba(255,255,255,.08)}
-.mode-check{width:20px;text-align:center;font-size:16px;font-weight:600;color:#ff9f0a;flex-shrink:0}
-.mode-icon{width:24px;text-align:center;font-size:18px;flex-shrink:0;color:#8e8e93}
+.mode-check{width:22px;text-align:center;font-size:17px;font-weight:600;color:#fff;flex-shrink:0}
+.mode-icon{width:28px;text-align:center;font-size:18px;flex-shrink:0;color:#8e8e93}
 .mode-label{flex:1;text-align:left}
 #mode-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:199}
 </style>
@@ -115,12 +116,12 @@ body.sci .sci-grid{display:grid}
 <div id="calc">
 <div id="top-bar">
 <button class="top-icon" id="hist-btn" aria-label="Historial"><svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></button>
-<button class="top-icon" id="mode-btn" aria-label="Modo"><svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/><line x1="15" y1="9" x2="15" y2="21"/><line x1="9" y1="15" x2="21" y2="15"/></svg></button>
+<button class="top-icon" id="mode-btn" aria-label="Modo"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="18" height="4.5" rx="1.2" fill="#aaa"/><rect x="2" y="8.5" width="4.5" height="4.5" rx="1.2" fill="#aaa"/><rect x="8.75" y="8.5" width="4.5" height="4.5" rx="1.2" fill="#aaa"/><rect x="15.5" y="8.5" width="4.5" height="4.5" rx="1.2" fill="#aaa"/><rect x="2" y="15" width="4.5" height="4.5" rx="1.2" fill="#aaa"/><rect x="8.75" y="15" width="4.5" height="4.5" rx="1.2" fill="#aaa"/><rect x="15.5" y="15" width="4.5" height="4.5" rx="1.2" fill="#aaa"/></svg></button>
 </div>
 <div id="mode-overlay" onclick="closeModeDropdown()"></div>
 <div id="mode-dropdown">
-<button class="mode-opt" onclick="selectMode('basic')"><span class="mode-check" id="chk-basic">✓</span><span class="mode-icon">⊞</span><span class="mode-label">Básica</span></button>
-<button class="mode-opt" onclick="selectMode('scientific')"><span class="mode-check" id="chk-sci"></span><span class="mode-icon">𝑓(𝑥)</span><span class="mode-label">Científica</span></button>
+<button class="mode-opt" onclick="selectMode('basic')"><span class="mode-check" id="chk-basic">✓</span><span class="mode-icon">±÷</span><span class="mode-label">Básica</span></button>
+<button class="mode-opt" onclick="selectMode('scientific')"><span class="mode-check" id="chk-sci"></span><span class="mode-icon" style="font-style:italic;font-size:16px">f(x)</span><span class="mode-label">Científica</span></button>
 </div>
 <div id="display-area">
 <div id="deg-indicator">Rad</div>
@@ -233,7 +234,7 @@ function updateDisplay() {
   // Auto-size font
   var len = txt.length;
   if (isScientific) {
-    $disp.style.fontSize = len > 20 ? '28px' : len > 16 ? '34px' : len > 12 ? '42px' : len > 9 ? '52px' : len > 7 ? '60px' : '70px';
+    $disp.style.fontSize = len > 20 ? '24px' : len > 16 ? '28px' : len > 12 ? '34px' : len > 9 ? '42px' : len > 7 ? '50px' : '56px';
   } else {
     $disp.style.fontSize = len > 16 ? 'min(32px,8vw)' : len > 12 ? 'min(42px,10vw)' : len > 9 ? 'min(56px,13vw)' : len > 7 ? 'min(68px,15vw)' : 'min(88px,18vw)';
   }
@@ -255,7 +256,7 @@ function buildExpression() {
     else if (t.type === 'func') expr += t.value;
     else if (t.type === 'paren') expr += t.value;
   }
-  if (!freshNum || tokens.length === 0) {
+  if (!freshNum || tokens.length === 0 || justEvald) {
     expr += fmtNum(currentNum);
   }
   return expr || '0';
@@ -273,7 +274,6 @@ function dispOp(o) {
 function inputNum(n) {
   var c = (n === ',') ? '.' : n;
   if (c === '.' && currentNum.indexOf('.') !== -1) return;
-  justEvald = false;
 
   if (freshNum) {
     if (justEvald || (tokens.length > 0 && tokens[tokens.length - 1].type === 'num' && activeOp === null)) {
@@ -286,6 +286,7 @@ function inputNum(n) {
     if (currentNum === '0' && c !== '.') currentNum = c;
     else currentNum += c;
   }
+  justEvald = false;
   clearHighlight();
   updateDisplay();
 }
