@@ -13,21 +13,60 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;color:#fff}
+
+/* ===== CALCULATOR (Portrait/Basic) ===== */
 #calc{display:flex;flex-direction:column;height:100dvh;padding:env(safe-area-inset-top,0) 16px env(safe-area-inset-bottom,0)}
 #top-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 0;flex-shrink:0}
-.top-icon{width:44px;height:44px;border-radius:50%;background:#2a2a2a;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.top-icon{width:44px;height:44px;border-radius:50%;background:#2a2a2a;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .1s}
 .top-icon svg{width:22px;height:22px}
-.top-icon:active{background:#444;transform:scale(0.92);transition:transform .1s}
-#display-area{flex:1;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 8px 8px 0;min-height:60px;overflow:hidden}
-#display{font-size:min(88px,18vw);font-weight:300;text-align:right;line-height:1;letter-spacing:-2px;white-space:nowrap}
+.top-icon:active{background:#444;transform:scale(0.92)}
+
+#display-area{flex:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;padding:0 8px 8px 0;min-height:60px;overflow:hidden}
+#deg-indicator{display:none;font-size:15px;color:#8e8e93;align-self:flex-start;padding:4px 0}
+#display{font-size:88px;font-weight:300;text-align:right;line-height:1;letter-spacing:-2px;white-space:nowrap;max-width:100%;overflow:hidden}
+
+/* Basic button grid */
 .btn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding-bottom:12px;flex-shrink:0}
-.btn{display:flex;align-items:center;justify-content:center;border-radius:50%;aspect-ratio:1;font-size:30px;font-weight:400;border:none;outline:none;cursor:pointer;-webkit-appearance:none}
+.btn{display:flex;align-items:center;justify-content:center;border-radius:50%;aspect-ratio:1;font-size:30px;font-weight:400;border:none;outline:none;cursor:pointer;-webkit-appearance:none;transition:opacity .05s}
 .btn:active{opacity:.6}
 .btn-num{background:#333;color:#fff}
 .btn-op{background:#ff9f0a;color:#fff;font-size:34px}
 .btn-fn{background:#a5a5a5;color:#000;font-size:22px}
 .btn-op.hi{background:#fff;color:#ff9f0a}
 .btn-fn svg{width:24px;height:24px;fill:none;stroke:#000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ===== SCIENTIFIC MODE ===== */
+body.sci #calc{padding:env(safe-area-inset-top,0) 8px env(safe-area-inset-bottom,0)}
+body.sci #deg-indicator{display:block}
+body.sci .btn-grid{gap:8px}
+body.sci .btn{border-radius:16px;font-size:22px}
+body.sci .btn-op{font-size:26px}
+body.sci .btn-fn{font-size:18px}
+
+.sci-grid{display:none;grid-template-columns:repeat(6,1fr);gap:6px;padding-bottom:6px;flex-shrink:0}
+body.sci .sci-grid{display:grid}
+.sci-btn{display:flex;align-items:center;justify-content:center;background:#2a2a2e;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;padding:10px 2px;cursor:pointer;min-height:36px;-webkit-appearance:none;transition:opacity .05s,background .1s}
+.sci-btn:active{opacity:.6}
+.sci-btn.active-2nd{background:#555;color:#fff}
+.sci-btn.mem-active{color:#ff9f0a}
+
+/* ===== HISTORY SHEET ===== */
+#history-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:100;transition:opacity .3s}
+#history-overlay.show{display:flex;flex-direction:column;justify-content:flex-end}
+#history-sheet{background:#1c1c1e;border-radius:16px 16px 0 0;max-height:75dvh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s ease-out;padding-bottom:env(safe-area-inset-bottom,0)}
+#history-overlay.show #history-sheet{transform:translateY(0)}
+#hist-handle{width:36px;height:5px;background:#555;border-radius:3px;margin:8px auto}
+#hist-top{display:flex;align-items:center;justify-content:space-between;padding:0 16px 8px}
+#hist-edit{color:#0a84ff;font-size:17px;background:none;border:none;cursor:pointer}
+#hist-close{width:30px;height:30px;border-radius:50%;background:#ff3b30;border:none;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#hist-list{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 24px;flex:1}
+.hist-section{font-size:13px;color:#8e8e93;padding:16px 0 8px;font-weight:600}
+.hist-entry{padding:12px 0;border-bottom:1px solid #333}
+.hist-expr{font-size:14px;color:#8e8e93;margin-bottom:4px}
+.hist-result{font-size:22px;font-weight:600;color:#fff}
+.hist-empty{color:#8e8e93;text-align:center;padding:40px 0;font-size:15px}
+
+/* ===== AV TOOLS ===== */
 #av{display:none;flex-direction:column;height:100dvh;background:#000;overflow:hidden;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
 #av-h{display:flex;align-items:center;padding:8px 16px 10px;gap:12px;flex-shrink:0}
 #av-h button{width:36px;height:36px;border-radius:50%;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -61,25 +100,32 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-ap
 </style>
 </head>
 <body>
+<!-- CALCULATOR -->
 <div id="calc">
 <div id="top-bar">
-<button class="top-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></button>
-<button class="top-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
+<button class="top-icon" id="hist-btn" aria-label="Historial"><svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></button>
+<button class="top-icon" id="av-btn" aria-label="Herramientas"><svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
 </div>
-<div id="display-area"><div id="display">0</div></div>
-<div class="btn-grid">
+<div id="display-area">
+<div id="deg-indicator">Rad</div>
+<div id="display">0</div>
+</div>
+<!-- Scientific buttons (hidden in portrait) -->
+<div class="sci-grid" id="sci-grid"></div>
+<!-- Basic button grid -->
+<div class="btn-grid" id="basic-grid">
 <button class="btn btn-fn" data-fn="bs"><svg viewBox="0 0 24 24"><path d="M9 4l-6 8 6 8h13V4H9z"/><path d="M14 9l4 6M18 9l-4 6"/></svg></button>
 <button class="btn btn-fn" id="acb" data-fn="ac">AC</button>
 <button class="btn btn-fn" data-fn="pct">%</button>
-<button class="btn btn-op" data-op="÷">÷</button>
+<button class="btn btn-op" data-op="/">÷</button>
 <button class="btn btn-num" data-num="7">7</button>
 <button class="btn btn-num" data-num="8">8</button>
 <button class="btn btn-num" data-num="9">9</button>
-<button class="btn btn-op" data-op="×">×</button>
+<button class="btn btn-op" data-op="*">×</button>
 <button class="btn btn-num" data-num="4">4</button>
 <button class="btn btn-num" data-num="5">5</button>
 <button class="btn btn-num" data-num="6">6</button>
-<button class="btn btn-op" data-op="−">−</button>
+<button class="btn btn-op" data-op="-">−</button>
 <button class="btn btn-num" data-num="1">1</button>
 <button class="btn btn-num" data-num="2">2</button>
 <button class="btn btn-num" data-num="3">3</button>
@@ -90,136 +136,664 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-ap
 <button class="btn btn-op" id="eq" data-op="=">=</button>
 </div>
 </div>
+
+<!-- HISTORY OVERLAY -->
+<div id="history-overlay">
+<div id="history-sheet">
+<div id="hist-handle"></div>
+<div id="hist-top">
+<button id="hist-edit">Borrar</button>
+<button id="hist-close">✕</button>
+</div>
+<div id="hist-list"></div>
+</div>
+</div>
+
+<!-- AV TOOLS -->
 <div id="av">
 <div id="av-h"><button id="avb" onclick="AB()">‹</button><div id="avt">AV</div><button id="avx" onclick="AX()">✕</button></div>
 <div id="avc"></div>
 </div>
+
 <script>
-// === iOS 18 Calculator Engine — expression display ===
-var cur='0',expr='',pv=null,op=null,fr=true,lN=null,lO=null,justEvald=false;
-var $=document.getElementById('display');
+// =============================================
+// iOS 18 CALCULATOR ENGINE - Full Expression
+// =============================================
 
-// Format number for display: comma decimal, period thousands
-function fmtNum(s){
-  if(s==='Error')return s;
-  var n=parseFloat(s);if(isNaN(n))return'Error';
-  // If user is typing and has trailing dot or decimals, preserve
-  if(s.includes('.')&&!justEvald){
-    var parts=s.split('.');
-    var intP=parts[0].replace(/^-/,'');
-    var neg=s.startsWith('-')?'−':'';
-    // Add thousand separators with period
-    var formatted=intP.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-    return neg+formatted+','+parts[1];
+// --- State ---
+var tokens = []; // Array of tokens: {type:'num'|'op'|'func'|'paren', value:string}
+var currentNum = '0';
+var freshNum = true;
+var justEvald = false;
+var lastOp = null, lastNum = null;
+var activeOp = null;
+var isScientific = false;
+var is2nd = false;
+var isDeg = false; // false=Rad, true=Deg
+var memory = 0;
+var memHasValue = false;
+var openParens = 0;
+var calcHistory = [];
+
+// DOM
+var $disp = document.getElementById('display');
+var $acb = document.getElementById('acb');
+var $degInd = document.getElementById('deg-indicator');
+
+// --- Number Formatting (Spanish locale) ---
+function fmtNum(s) {
+  if (s === 'Error' || s === 'Overflow') return s;
+  var n = parseFloat(s);
+  if (isNaN(n)) return 'Error';
+  if (!isFinite(n)) return 'Overflow';
+
+  // If user is typing (has trailing dot or decimal digits being entered)
+  if (s.indexOf('.') !== -1 && !justEvald) {
+    var parts = s.split('.');
+    var intP = parts[0].replace(/^-/, '');
+    var neg = s.charAt(0) === '-' ? '−' : '';
+    var formatted = intP.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return neg + formatted + ',' + parts[1];
   }
+
   // For results or integers
-  var str=String(n);
-  if(str.includes('e'))return str.replace('.',',');
-  var parts=str.split('.');
-  var intP=parts[0].replace(/^-/,'');
-  var neg=n<0?'−':'';
-  var formatted=intP.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-  if(parts[1])return neg+formatted+','+parts[1];
-  return neg+formatted;
-}
-
-function U(){
-  // Build display text
-  var txt;
-  if(op&&fr){
-    // Show expression: prev op (waiting for next number)
-    txt=fmtNum(pv)+op;
-  } else if(op&&!fr){
-    // Show expression: prev op current
-    txt=fmtNum(pv)+op+fmtNum(cur);
-  } else {
-    txt=fmtNum(cur);
+  if (Math.abs(n) >= 1e12 || (Math.abs(n) < 1e-6 && n !== 0)) {
+    var e = n.toExponential(6).replace(/\.?0+e/, 'e');
+    return e.replace('.', ',').replace('e+', 'e');
   }
-  // Auto-size font based on length
-  var len=txt.length;
-  $.style.fontSize=len>16?'min(32px,8vw)':len>12?'min(42px,10vw)':len>9?'min(56px,13vw)':len>7?'min(68px,15vw)':'min(88px,18vw)';
-  $.textContent=txt;
+  var str = n.toPrecision(12).replace(/\.?0+$/, '');
+  var parts = str.split('.');
+  var intP = parts[0].replace(/^-/, '');
+  var neg = n < 0 ? '−' : '';
+  var formatted = intP.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  if (parts[1]) return neg + formatted + ',' + parts[1];
+  return neg + formatted;
+}
+
+// --- Display Update ---
+function updateDisplay() {
+  var txt = buildExpression();
+
+  // Auto-size font
+  var len = txt.length;
+  if (isScientific) {
+    $disp.style.fontSize = len > 20 ? '28px' : len > 16 ? '34px' : len > 12 ? '42px' : len > 9 ? '52px' : len > 7 ? '60px' : '70px';
+  } else {
+    $disp.style.fontSize = len > 16 ? 'min(32px,8vw)' : len > 12 ? 'min(42px,10vw)' : len > 9 ? 'min(56px,13vw)' : len > 7 ? 'min(68px,15vw)' : 'min(88px,18vw)';
+  }
+  $disp.textContent = txt;
+
   // AC vs C
-  document.getElementById('acb').textContent=(cur!=='0'&&!fr)?'C':'AC';
+  $acb.textContent = (currentNum !== '0' && !freshNum) ? 'C' : 'AC';
+
+  // Deg indicator
+  $degInd.textContent = isDeg ? 'Deg' : 'Rad';
 }
 
-function N(n){
-  var c=n===','?'.':n;
-  if(c==='.'&&cur.includes('.'))return;
-  justEvald=false;
-  if(fr){cur=c==='.'?'0.':c;fr=false}
-  else{cur=cur==='0'&&c!=='.'?c:cur+c}
-  U();CH();
+function buildExpression() {
+  var expr = '';
+  for (var i = 0; i < tokens.length; i++) {
+    var t = tokens[i];
+    if (t.type === 'num') expr += fmtNum(t.value);
+    else if (t.type === 'op') expr += dispOp(t.value);
+    else if (t.type === 'func') expr += t.value;
+    else if (t.type === 'paren') expr += t.value;
+  }
+  if (!freshNum || tokens.length === 0) {
+    expr += fmtNum(currentNum);
+  }
+  return expr || '0';
 }
 
-function O(o){
-  if(o==='='){
-    if(pv!==null&&op){
-      lN=parseFloat(cur);lO=op;
-      cur=String(K(parseFloat(pv),parseFloat(cur),op));
-      op=null;pv=null;fr=true;justEvald=true;U();CH();
-    }else if(lO&&lN!==null){
-      cur=String(K(parseFloat(cur),lN,lO));
-      fr=true;justEvald=true;U();
+function dispOp(o) {
+  if (o === '+') return '+';
+  if (o === '-') return '−';
+  if (o === '*') return '×';
+  if (o === '/') return '÷';
+  return o;
+}
+
+// --- Input: Number ---
+function inputNum(n) {
+  var c = (n === ',') ? '.' : n;
+  if (c === '.' && currentNum.indexOf('.') !== -1) return;
+  justEvald = false;
+
+  if (freshNum) {
+    if (justEvald || (tokens.length > 0 && tokens[tokens.length - 1].type === 'num' && activeOp === null)) {
+      tokens = [];
+      openParens = 0;
     }
+    currentNum = (c === '.') ? '0.' : c;
+    freshNum = false;
+  } else {
+    if (currentNum === '0' && c !== '.') currentNum = c;
+    else currentNum += c;
+  }
+  clearHighlight();
+  updateDisplay();
+}
+
+// --- Input: Operator ---
+function inputOp(o) {
+  if (o === '=') {
+    doEquals();
     return;
   }
-  lN=null;lO=null;justEvald=false;
-  if(pv!==null&&op&&!fr){
-    cur=String(K(parseFloat(pv),parseFloat(cur),op));
+
+  justEvald = false;
+  lastOp = null; lastNum = null;
+
+  // Push current number and operator
+  if (!freshNum) {
+    tokens.push({type: 'num', value: currentNum});
   }
-  pv=cur;op=o;fr=true;U();
-  document.querySelectorAll('.btn-op').forEach(function(b){
-    b.classList.toggle('hi',b.dataset.op===o&&o!=='=');
+  // If last token is an operator, replace it
+  if (tokens.length > 0 && tokens[tokens.length - 1].type === 'op') {
+    tokens[tokens.length - 1].value = o;
+  } else {
+    tokens.push({type: 'op', value: o});
+  }
+  currentNum = '0';
+  freshNum = true;
+  activeOp = o;
+  highlightOp(o);
+  updateDisplay();
+}
+
+function doEquals() {
+  if (tokens.length === 0 && freshNum && lastOp && lastNum !== null) {
+    // Repeated =
+    var cur = parseFloat(currentNum);
+    var result = evalBinary(cur, lastNum, lastOp);
+    addCalcHistory(fmtNum(String(cur)) + dispOp(lastOp) + fmtNum(String(lastNum)), fmtNum(String(result)));
+    currentNum = String(result);
+    tokens = [];
+    freshNum = true;
+    justEvald = true;
+    clearHighlight();
+    updateDisplay();
+    return;
+  }
+
+  if (tokens.length === 0) return;
+
+  var exprDisplay = buildExpression();
+  if (!freshNum) {
+    tokens.push({type: 'num', value: currentNum});
+  }
+
+  // Save last op and num for repeated =
+  for (var i = tokens.length - 1; i >= 0; i--) {
+    if (tokens[i].type === 'op') {
+      lastOp = tokens[i].value;
+      if (i + 1 < tokens.length && tokens[i + 1].type === 'num') {
+        lastNum = parseFloat(tokens[i + 1].value);
+      }
+      break;
+    }
+  }
+
+  var result = evaluateTokens(tokens);
+  var resultStr = isNaN(result) ? 'Error' : !isFinite(result) ? 'Overflow' : String(result);
+  addCalcHistory(exprDisplay, fmtNum(resultStr));
+  currentNum = resultStr;
+  tokens = [];
+  openParens = 0;
+  freshNum = true;
+  justEvald = true;
+  activeOp = null;
+  clearHighlight();
+  updateDisplay();
+}
+
+// --- Evaluate tokens with proper precedence ---
+function evaluateTokens(toks) {
+  var nums = [];
+  var ops = [];
+  for (var i = 0; i < toks.length; i++) {
+    if (toks[i].type === 'num') nums.push(parseFloat(toks[i].value));
+    else if (toks[i].type === 'op') ops.push(toks[i].value);
+  }
+
+  if (nums.length === 0) return 0;
+  if (nums.length === 1) return nums[0];
+
+  // Pass 1: special ops (^, yx, ee, yroot, logbase) right-to-left
+  for (var i = ops.length - 1; i >= 0; i--) {
+    var op = ops[i];
+    if (op === '^') {
+      nums[i] = Math.pow(nums[i], nums[i + 1]);
+      nums.splice(i + 1, 1); ops.splice(i, 1);
+    } else if (op === 'yx') {
+      nums[i] = Math.pow(nums[i + 1], nums[i]);
+      nums.splice(i + 1, 1); ops.splice(i, 1);
+    } else if (op === 'ee') {
+      nums[i] = nums[i] * Math.pow(10, nums[i + 1]);
+      nums.splice(i + 1, 1); ops.splice(i, 1);
+    } else if (op === 'yroot') {
+      nums[i] = Math.pow(nums[i], 1 / nums[i + 1]);
+      nums.splice(i + 1, 1); ops.splice(i, 1);
+    } else if (op === 'logbase') {
+      nums[i] = Math.log(nums[i]) / Math.log(nums[i + 1]);
+      nums.splice(i + 1, 1); ops.splice(i, 1);
+    }
+  }
+  if (nums.length === 1) return nums[0];
+
+  // Pass 2: * and /
+  var nums2 = [nums[0]];
+  var ops2 = [];
+  for (var i = 0; i < ops.length; i++) {
+    if (ops[i] === '*' || ops[i] === '/') {
+      var a = nums2.pop();
+      nums2.push(evalBinary(a, nums[i + 1], ops[i]));
+    } else {
+      ops2.push(ops[i]);
+      nums2.push(nums[i + 1]);
+    }
+  }
+
+  // Pass 3: + and -
+  var result = nums2[0];
+  for (var i = 0; i < ops2.length; i++) {
+    result = evalBinary(result, nums2[i + 1], ops2[i]);
+  }
+
+  if (isNaN(result)) return NaN;
+  if (!isFinite(result)) return Infinity;
+  return Math.round(result * 1e10) / 1e10;
+}
+
+function evalBinary(a, b, op) {
+  var r;
+  if (op === '+') r = a + b;
+  else if (op === '-') r = a - b;
+  else if (op === '*') r = a * b;
+  else if (op === '/') r = (b === 0) ? NaN : a / b;
+  else r = a;
+  if (isNaN(r)) return NaN;
+  return Math.round(r * 1e10) / 1e10;
+}
+
+// --- Functions ---
+function inputFn(f) {
+  if (f === 'ac') {
+    if (currentNum !== '0' && !freshNum) {
+      currentNum = '0'; freshNum = false;
+    } else {
+      currentNum = '0'; tokens = []; freshNum = true;
+      lastOp = null; lastNum = null; justEvald = false;
+      activeOp = null; openParens = 0;
+    }
+    clearHighlight(); updateDisplay();
+  } else if (f === 'sign') {
+    if (currentNum !== '0') {
+      currentNum = String(-parseFloat(currentNum));
+      updateDisplay();
+    }
+  } else if (f === 'pct') {
+    currentNum = String(parseFloat(currentNum) / 100);
+    freshNum = true; justEvald = true; updateDisplay();
+  } else if (f === 'bs') {
+    if (!freshNum && currentNum.length > 1) {
+      currentNum = currentNum.slice(0, -1);
+      if (currentNum === '-' || currentNum === '') currentNum = '0';
+    } else { currentNum = '0'; }
+    updateDisplay();
+  }
+}
+
+// --- Operator highlight ---
+function highlightOp(o) {
+  document.querySelectorAll('.btn-op').forEach(function(b) {
+    b.classList.toggle('hi', b.dataset.op === o && o !== '=');
   });
 }
+function clearHighlight() {
+  activeOp = null;
+  document.querySelectorAll('.btn-op').forEach(function(b) { b.classList.remove('hi'); });
+}
 
-function K(a,b,o){var r=o==='+'?a+b:o==='−'?a-b:o==='×'?a*b:o==='÷'?b?a/b:NaN:a;return Math.round(r*1e10)/1e10}
-function CH(){document.querySelectorAll('.btn-op').forEach(function(b){b.classList.remove('hi')})}
-
-function FN(f){
-  if(f==='ac'){
-    if(cur!=='0'&&!fr){cur='0';fr=false}
-    else{cur='0';pv=null;op=null;fr=true;lN=null;lO=null;justEvald=false}
-    CH();U();
-  }else if(f==='sign'){
-    if(cur!=='0'){
-      var n=-parseFloat(cur);
-      cur=String(n);
-      U();
+// --- History ---
+function loadCalcHistory() {
+  try { calcHistory = JSON.parse(localStorage.getItem('calcHistory') || '[]'); } catch(e) { calcHistory = []; }
+}
+function saveCalcHistory() {
+  try { localStorage.setItem('calcHistory', JSON.stringify(calcHistory)); } catch(e) {}
+}
+function addCalcHistory(expr, result) {
+  if (result === 'Error' || result === 'Overflow') return;
+  calcHistory.unshift({expr: expr, result: result, time: Date.now()});
+  if (calcHistory.length > 50) calcHistory.pop();
+  saveCalcHistory();
+}
+function showHistory() {
+  var ov = document.getElementById('history-overlay');
+  var list = document.getElementById('hist-list');
+  if (calcHistory.length === 0) {
+    list.innerHTML = '<div class="hist-empty">No hay historial</div>';
+  } else {
+    var html = '<div class="hist-section">Anteriores</div>';
+    for (var i = 0; i < calcHistory.length; i++) {
+      html += '<div class="hist-entry" data-idx="'+i+'"><div class="hist-expr">' + escHtml(calcHistory[i].expr) + '</div><div class="hist-result">' + escHtml(calcHistory[i].result) + '</div></div>';
     }
-  }else if(f==='pct'){
-    cur=String(parseFloat(cur)/100);fr=true;justEvald=true;U();
-  }else if(f==='bs'){
-    if(!fr&&cur.length>1){
-      cur=cur.slice(0,-1);
-      if(cur==='-'||cur==='')cur='0';
-    }else{cur='0'}
-    U();
+    list.innerHTML = html;
+    list.querySelectorAll('.hist-entry').forEach(function(el) {
+      el.onclick = function() {
+        var idx = parseInt(this.dataset.idx);
+        var val = calcHistory[idx].result.replace(/\./g, '').replace(',', '.').replace('−', '-');
+        currentNum = val;
+        tokens = [];
+        freshNum = true;
+        justEvald = true;
+        closeHistory();
+        updateDisplay();
+      };
+    });
+  }
+  ov.classList.add('show');
+}
+function closeHistory() {
+  document.getElementById('history-overlay').classList.remove('show');
+}
+function clearCalcHistory() {
+  calcHistory = [];
+  saveCalcHistory();
+  showHistory();
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// --- Init basic event listeners ---
+document.querySelectorAll('[data-num]').forEach(function(b) {
+  b.onclick = function() { inputNum(b.dataset.num); };
+});
+document.querySelectorAll('[data-op]').forEach(function(b) {
+  if (b.id !== 'eq') b.onclick = function() { inputOp(b.dataset.op); };
+});
+document.querySelectorAll('[data-fn]').forEach(function(b) {
+  b.onclick = function() { inputFn(b.dataset.fn); };
+});
+
+// History buttons
+document.getElementById('hist-btn').onclick = showHistory;
+document.getElementById('hist-close').onclick = closeHistory;
+document.getElementById('hist-edit').onclick = clearCalcHistory;
+document.getElementById('history-overlay').onclick = function(e) {
+  if (e.target === this) closeHistory();
+};
+
+// AV tools button
+document.getElementById('av-btn').onclick = function() {
+  if (isScientific) {
+    toggleScientific();
+  } else {
+    EA();
+  }
+};
+
+// Long-press = for AV tools
+var ht = null, eqBtn = document.getElementById('eq');
+function hs() { ht = setTimeout(function() { EA(); ht = null; }, 2000); }
+function he() { if (ht) { clearTimeout(ht); ht = null; inputOp('='); } }
+eqBtn.addEventListener('touchstart', function(e) { e.preventDefault(); hs(); }, {passive: false});
+eqBtn.addEventListener('touchend', he);
+eqBtn.addEventListener('touchcancel', function() { if (ht) { clearTimeout(ht); ht = null; } });
+eqBtn.addEventListener('mousedown', hs);
+eqBtn.addEventListener('mouseup', he);
+eqBtn.addEventListener('mouseleave', function() { if (ht) { clearTimeout(ht); ht = null; } });
+
+// =============================================
+// SCIENTIFIC CALCULATOR
+// =============================================
+var sciButtonsNormal = [
+  ['(', ')', 'mc', 'm+', 'm-', 'mr'],
+  ['2nd', 'x2', 'x3', 'xy', 'ex', '10x'],
+  ['1/x', 'sqrt2', 'sqrt3', 'sqrty', 'ln', 'log10'],
+  ['x!', 'sin', 'cos', 'tan', 'e', 'EE'],
+  ['Rand', 'sinh', 'cosh', 'tanh', 'pi', 'Deg']
+];
+var sciLabelsNormal = [
+  ['(', ')', 'mc', 'm+', 'm−', 'mr'],
+  ['2ⁿᵈ', 'x²', 'x³', 'xʸ', 'eˣ', '10ˣ'],
+  ['1/x', '²√x', '³√x', 'ʸ√x', 'ln', 'log₁₀'],
+  ['x!', 'sin', 'cos', 'tan', 'e', 'EE'],
+  ['Rand', 'sinh', 'cosh', 'tanh', 'π', 'Deg']
+];
+var sciButtons2nd = [
+  ['(', ')', 'mc', 'm+', 'm-', 'mr'],
+  ['2nd', 'x2', 'x3', 'xy', 'yx', '2x'],
+  ['1/x', 'sqrt2', 'sqrt3', 'sqrty', 'logy', 'log2'],
+  ['x!', 'asin', 'acos', 'atan', 'e', 'EE'],
+  ['Rand', 'asinh', 'acosh', 'atanh', 'pi', 'Rad']
+];
+var sciLabels2nd = [
+  ['(', ')', 'mc', 'm+', 'm−', 'mr'],
+  ['2ⁿᵈ', 'x²', 'x³', 'xʸ', 'yˣ', '2ˣ'],
+  ['1/x', '²√x', '³√x', 'ʸ√x', 'logᵧ', 'log₂'],
+  ['x!', 'sin⁻¹', 'cos⁻¹', 'tan⁻¹', 'e', 'EE'],
+  ['Rand', 'sinh⁻¹', 'cosh⁻¹', 'tanh⁻¹', 'π', 'Rad']
+];
+
+function buildSciGrid() {
+  var grid = document.getElementById('sci-grid');
+  grid.innerHTML = '';
+  var funcs = is2nd ? sciButtons2nd : sciButtonsNormal;
+  var labels = is2nd ? sciLabels2nd : sciLabelsNormal;
+  for (var r = 0; r < funcs.length; r++) {
+    for (var c = 0; c < funcs[r].length; c++) {
+      var btn = document.createElement('button');
+      btn.className = 'sci-btn';
+      btn.textContent = labels[r][c];
+      btn.dataset.sci = funcs[r][c];
+      if (funcs[r][c] === '2nd' && is2nd) btn.classList.add('active-2nd');
+      if (funcs[r][c] === 'mr' && memHasValue) btn.classList.add('mem-active');
+      (function(action) {
+        btn.onclick = function() { doSci(action); };
+      })(funcs[r][c]);
+      grid.appendChild(btn);
+    }
   }
 }
 
-document.querySelectorAll('[data-num]').forEach(function(b){b.onclick=function(){N(b.dataset.num)}});
-document.querySelectorAll('[data-op]').forEach(function(b){b.onclick=function(){O(b.dataset.op)}});
-document.querySelectorAll('[data-fn]').forEach(function(b){b.onclick=function(){FN(b.dataset.fn)}});
-var ht=null,eq=document.getElementById('eq');
-function hs(){ht=setTimeout(function(){EA();ht=null},2000)}
-function he(){if(ht){clearTimeout(ht);ht=null;O('=')}}
-eq.addEventListener('touchstart',function(e){e.preventDefault();hs()},{passive:false});
-eq.addEventListener('touchend',he);eq.addEventListener('touchcancel',function(){if(ht){clearTimeout(ht);ht=null}});
-eq.addEventListener('mousedown',hs);eq.addEventListener('mouseup',he);eq.addEventListener('mouseleave',function(){if(ht){clearTimeout(ht);ht=null}});
+function toggleScientific() {
+  isScientific = !isScientific;
+  document.body.classList.toggle('sci', isScientific);
+  if (isScientific) buildSciGrid();
+  updateDisplay();
+}
+
+function doSci(action) {
+  var n = parseFloat(currentNum);
+  var result;
+
+  switch (action) {
+    case '2nd':
+      is2nd = !is2nd;
+      buildSciGrid();
+      return;
+    case 'Deg':
+      isDeg = true;
+      is2nd = !is2nd;
+      buildSciGrid();
+      updateDisplay();
+      return;
+    case 'Rad':
+      isDeg = false;
+      is2nd = !is2nd;
+      buildSciGrid();
+      updateDisplay();
+      return;
+    case '(':
+      if (justEvald) { tokens = []; justEvald = false; }
+      if (!freshNum) {
+        tokens.push({type: 'num', value: currentNum});
+        tokens.push({type: 'op', value: '*'});
+      }
+      tokens.push({type: 'paren', value: '('});
+      openParens++;
+      currentNum = '0';
+      freshNum = true;
+      updateDisplay();
+      return;
+    case ')':
+      if (openParens <= 0) return;
+      if (!freshNum) tokens.push({type: 'num', value: currentNum});
+      tokens.push({type: 'paren', value: ')'});
+      openParens--;
+      currentNum = '0';
+      freshNum = true;
+      updateDisplay();
+      return;
+    case 'mc': memory = 0; memHasValue = false; buildSciGrid(); return;
+    case 'm+': memory += n; memHasValue = true; buildSciGrid(); return;
+    case 'm-': memory -= n; memHasValue = true; buildSciGrid(); return;
+    case 'mr':
+      currentNum = String(memory);
+      freshNum = true; justEvald = true;
+      updateDisplay();
+      return;
+    case 'x2': result = n * n; break;
+    case 'x3': result = n * n * n; break;
+    case 'xy':
+      if (!freshNum) tokens.push({type: 'num', value: currentNum});
+      tokens.push({type: 'op', value: '^'});
+      currentNum = '0'; freshNum = true; activeOp = '^';
+      updateDisplay();
+      return;
+    case 'yx':
+      if (!freshNum) tokens.push({type: 'num', value: currentNum});
+      tokens.push({type: 'op', value: 'yx'});
+      currentNum = '0'; freshNum = true;
+      updateDisplay();
+      return;
+    case 'ex': result = Math.exp(n); break;
+    case '10x': result = Math.pow(10, n); break;
+    case '2x': result = Math.pow(2, n); break;
+    case '1/x': result = n === 0 ? NaN : 1 / n; break;
+    case 'sqrt2': result = n < 0 ? NaN : Math.sqrt(n); break;
+    case 'sqrt3': result = Math.cbrt(n); break;
+    case 'sqrty':
+      if (!freshNum) tokens.push({type: 'num', value: currentNum});
+      tokens.push({type: 'op', value: 'yroot'});
+      currentNum = '0'; freshNum = true;
+      updateDisplay();
+      return;
+    case 'ln': result = n <= 0 ? NaN : Math.log(n); break;
+    case 'log10': result = n <= 0 ? NaN : Math.log10(n); break;
+    case 'log2': result = n <= 0 ? NaN : Math.log2(n); break;
+    case 'logy':
+      if (!freshNum) tokens.push({type: 'num', value: currentNum});
+      tokens.push({type: 'op', value: 'logbase'});
+      currentNum = '0'; freshNum = true;
+      updateDisplay();
+      return;
+    case 'x!': result = factorial(n); break;
+    case 'sin': result = Math.sin(toAngle(n)); break;
+    case 'cos': result = Math.cos(toAngle(n)); break;
+    case 'tan': result = Math.tan(toAngle(n)); break;
+    case 'asin': result = fromAngle(Math.asin(n)); break;
+    case 'acos': result = fromAngle(Math.acos(n)); break;
+    case 'atan': result = fromAngle(Math.atan(n)); break;
+    case 'sinh': result = Math.sinh(n); break;
+    case 'cosh': result = Math.cosh(n); break;
+    case 'tanh': result = Math.tanh(n); break;
+    case 'asinh': result = Math.asinh(n); break;
+    case 'acosh': result = n < 1 ? NaN : Math.acosh(n); break;
+    case 'atanh': result = Math.abs(n) >= 1 ? NaN : Math.atanh(n); break;
+    case 'e':
+      currentNum = String(Math.E);
+      freshNum = true; justEvald = true;
+      updateDisplay();
+      return;
+    case 'pi':
+      currentNum = String(Math.PI);
+      freshNum = true; justEvald = true;
+      updateDisplay();
+      return;
+    case 'EE':
+      if (!freshNum) tokens.push({type: 'num', value: currentNum});
+      tokens.push({type: 'op', value: 'ee'});
+      currentNum = '0'; freshNum = true;
+      updateDisplay();
+      return;
+    case 'Rand':
+      currentNum = String(Math.random());
+      freshNum = true; justEvald = true;
+      updateDisplay();
+      return;
+    default: return;
+  }
+
+  // Apply result
+  if (isNaN(result)) {
+    currentNum = 'Error'; tokens = [];
+    freshNum = true; justEvald = true;
+  } else if (!isFinite(result)) {
+    currentNum = 'Overflow'; tokens = [];
+    freshNum = true; justEvald = true;
+  } else {
+    currentNum = String(result);
+    freshNum = true; justEvald = true;
+  }
+  updateDisplay();
+}
+
+function toAngle(n) { return isDeg ? n * Math.PI / 180 : n; }
+function fromAngle(rad) { return isDeg ? rad * 180 / Math.PI : rad; }
+
+function factorial(n) {
+  if (n < 0 || n !== Math.floor(n)) return gamma(n + 1);
+  if (n > 170) return Infinity;
+  var r = 1;
+  for (var i = 2; i <= n; i++) r *= i;
+  return r;
+}
+
+function gamma(z) {
+  if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+  z -= 1;
+  var g = 7;
+  var c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  var x = c[0];
+  for (var i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  var t = z + g + 0.5;
+  return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+}
+
+// --- Landscape detection for scientific mode ---
+var mql = window.matchMedia('(orientation: landscape)');
+function checkOrientation() {
+  if (mql.matches && window.innerWidth > 500) {
+    if (!isScientific) toggleScientific();
+  } else {
+    if (isScientific) toggleScientific();
+  }
+}
+mql.addEventListener('change', checkOrientation);
+window.addEventListener('resize', checkOrientation);
+
+// Init
+loadCalcHistory();
+updateDisplay();
+
+// =============================================
+// AV TOOLS (preserved from original)
+// =============================================
 var ah=[],_c=document.getElementById('calc'),_a=document.getElementById('av'),_v=document.getElementById('avc'),_t=document.getElementById('avt');
 function EA(){_c.style.display='none';_a.style.display='flex';ah=[];SM();if(navigator.vibrate)navigator.vibrate(50)}
-function AX(){_a.style.display='none';_c.style.display='flex';FN('ac')}
+function AX(){_a.style.display='none';_c.style.display='flex';inputFn('ac')}
 function AB(){ah.length>1?(ah.pop(),ah[ah.length-1].f()):AX()}
 function AN(t,f){ah.push({t:t,f:f});_t.textContent=t;f()}
 var V0=343.4;function VS(t){return t==null?V0:331.4+.6*t}function F(n,x){if(x==null)x=2;if(isNaN(n)||!isFinite(n))return'Error';return String(Number(n.toFixed(x))).replace(/\./g,',')}function FS(n){return Math.abs(n)<.001||Math.abs(n)>=1e7?n.toExponential(2).replace('.',','):F(n)}
-function SM(){AN('AV',function(){_v.innerHTML='<div class="mn"><button class="mb" onclick="M1()"><span class="mi">🔊</span><span class="ml">V / f / λ / t</span><span class="md">Velocidad, frecuencia, λ, periodo</span></button><button class="mb" onclick="M2()"><span class="mi">📊</span><span class="ml">Decibelios</span><span class="md">dB ↔ unidades</span></button><button class="mb" onclick="M3()"><span class="mi">📐</span><span class="ml">Comb Filter</span><span class="md">Tabla + gráfica</span></button><button class="mb" onclick="M4()"><span class="mi">🔈</span><span class="ml">SPL a distancia</span><span class="md">Sens + W → dBSPL</span></button><button class="mb" onclick="M5()"><span class="mi">⚡</span><span class="ml">Potencia</span><span class="md">SPL + dist → W</span></button><button class="mb" onclick="M6()"><span class="mi">〰️</span><span class="ml">Fase</span><span class="md">φ = 360 × f × t</span></button><button class="mb" onclick="M7()"><span class="mi">📏</span><span class="ml">Ley inversa</span><span class="md">Caída por distancia</span></button><button class="mb" onclick="M8()"><span class="mi">🎯</span><span class="ml">Directividad</span><span class="md">Tamaño vs λ</span></button></div>'})}
+function SM(){AN('AV',function(){_v.innerHTML='<div class="mn"><button class="mb" onclick="M1()"><span class="mi">🔊</span><span class="ml">V / f / λ / t</span><span class="md">Velocidad, frecuencia, λ, periodo</span></button><button class="mb" onclick="M2()"><span class="mi">📊</span><span class="ml">Decibelios</span><span class="md">dB ↔ unidades</span></button><button class="mb" onclick="M3()"><span class="mi">📐</span><span class="ml">Comb Filter</span><span class="md">Tabla + gráfica</span></button><button class="mb" onclick="M4()"><span class="mi">📈</span><span class="ml">SPL a distancia</span><span class="md">Sens + W → dBSPL</span></button><button class="mb" onclick="M5()"><span class="mi">⚡</span><span class="ml">Potencia</span><span class="md">SPL + dist → W</span></button><button class="mb" onclick="M6()"><span class="mi">〰️</span><span class="ml">Fase</span><span class="md">φ = 360 × f × t</span></button><button class="mb" onclick="M7()"><span class="mi">📏</span><span class="ml">Ley inversa</span><span class="md">Caída por distancia</span></button><button class="mb" onclick="M8()"><span class="mi">🎯</span><span class="ml">Directividad</span><span class="md">Tamaño vs λ</span></button></div>'})}
 function RM(e){e.parentElement.querySelectorAll('.rd').forEach(function(x){x.classList.remove('on')});e.classList.add('on')}
 function GV(id){return parseFloat(document.getElementById(id).value)}
 function GO(id){var v=document.getElementById(id).value;return v===''?null:parseFloat(v)}
 function SR(s,f){document.getElementById('R').innerHTML='<div class="ar"><div class="at">'+s+'</div></div><div class="af2">'+f+'</div>'}
-// M1: V/f/λ/t
 function M1(){AN('V / f / λ / t',function(){_v.innerHTML='<div class="af"><div class="al">Calcular</div><div class="rg" id="vm"><div class="rd on" onclick="RM(this);VS1(\'l\')">λ</div><div class="rd" onclick="RM(this);VS1(\'f\')">f</div><div class="rd" onclick="RM(this);VS1(\'t\')">t</div><div class="rd" onclick="RM(this);VS1(\'v\')">V</div></div><div id="VF"></div><div id="R"></div></div>';VS1('l')})}
 var pU='ms',lU='m';
 function VS1(m){var h='',R=document.getElementById('R');if(R)R.innerHTML='';
@@ -236,14 +810,12 @@ function XFT(){var v=GV('a');if(!v)return;var t=pU==='ms'?v/1000:v,f=1/t,s='';if
 function XFL(){var v=GV('a'),T=GO('b'),V=VS(T),c={m:1,cm:.01,mm:.001,dm:.1},l=v*c[lU],f=V/l,s='';if(!v)return;if(lU!=='m')s+='<span class="d">A metros:</span>\n'+F(v)+' '+lU+' = '+F(l,4)+' m\n\n';if(T!=null)s+='<span class="d">V a '+F(T,0)+'ºC = '+F(V)+' m/s</span>\n\n';s+='<span class="d">f = V / λ</span>\nf = '+F(V)+' / '+F(l,4)+' = <span class="h">'+F(f,2)+' Hz</span>';SR(s,'f = '+F(f,2)+' Hz')}
 function XT(){var f=GV('a');if(!f)return;var t=1/f;SR('<span class="d">t = 1 / f</span>\nt = 1 / '+F(f,0)+' = <span class="h">'+FS(t)+' s</span> = <span class="h">'+F(t*1000,4)+' ms</span>','t = '+F(t*1000,4)+' ms')}
 function XV(){var T=GV('a');if(isNaN(T))return;var V=VS(T);SR('<span class="d">V = 331,4 + 0,6 · T</span>\nV = 331,4 + 0,6 · '+F(T,0)+' = 331,4 + '+F(.6*T)+' = <span class="h">'+F(V)+' m/s</span>','V = '+F(V)+' m/s')}
-// M2: dB
 var dD='to',dCM='20';
 var DT={dBW:{r:1,m:10,u:'W',n:'dBW',s:'1'},dBm:{r:.001,m:10,u:'W',n:'dBm',s:'0,001'},dBV:{r:1,m:20,u:'V',n:'dBV',s:'1'},dBu:{r:.775,m:20,u:'V',n:'dBu',s:'0,775'},dBSPL:{r:2e-5,m:20,u:'Pa',n:'dBSPL',s:'2×10⁻⁵'},dBFS:{r:1,m:20,u:'',n:'dBFS',s:'1'}};
 function M2(){AN('Decibelios',function(){_v.innerHTML='<div class="af"><div class="al">Dirección</div><div class="rg"><div class="rd on" onclick="RM(this);dD=\'to\'">Unidades → dB</div><div class="rd" onclick="RM(this);dD=\'from\'">dB → Unidades</div></div><div class="al">Tipo</div><select class="as" id="dt" onchange="document.getElementById(\'dc\').style.display=this.value===\'custom\'?\'block\':\'none\'"><option value="dBW">dBW (1 W)</option><option value="dBm">dBm (0,001 W)</option><option value="dBV">dBV (1 V)</option><option value="dBu">dBu (0,775 V)</option><option value="dBSPL">dBSPL (2×10⁻⁵ Pa)</option><option value="dBFS">dBFS (1 máx)</option><option value="custom">Personalizada</option></select><div id="dc" style="display:none"><div class="al">Nombre</div><input class="ai" id="cn" placeholder="manzanas"><div class="al">Referencia</div><input class="ai" id="cr" type="number" inputmode="decimal"><div class="al">Magnitud</div><div class="rg"><div class="rd on" onclick="RM(this);dCM=\'20\'">20·log</div><div class="rd" onclick="RM(this);dCM=\'10\'">10·log</div></div></div><div class="al">Valor</div><input class="ai" id="a" type="number" inputmode="decimal"><button class="ab" onclick="XDB()">Calcular</button><div id="R"></div></div>'})}
 function XDB(){var tp=document.getElementById('dt').value,v=GV('a');if(isNaN(v))return;var r,m,u,n,rs;if(tp==='custom'){n='dB'+document.getElementById('cn').value;r=parseFloat(document.getElementById('cr').value);m=parseInt(dCM);u=document.getElementById('cn').value;rs=F(r)}else{var t=DT[tp];r=t.r;m=t.m;u=t.u;n=t.n;rs=t.s}var s='',re;
-if(dD==='to'){var rat=v/r,db=m*Math.log10(rat);s='<span class="d">'+( u||'unidades')+' → '+n+':</span>\n'+m+' × log('+FS(v)+' / '+rs+')\n= '+m+' × log('+FS(rat)+')\n= '+m+' × '+F(Math.log10(rat),4)+'\n= <span class="h">'+F(db,2)+' '+n+'</span>';re=F(db,2)+' '+n}
+if(dD==='to'){var rat=v/r,db=m*Math.log10(rat);s='<span class="d">'+(u||'unidades')+' → '+n+':</span>\n'+m+' × log('+FS(v)+' / '+rs+')\n= '+m+' × log('+FS(rat)+')\n= '+m+' × '+F(Math.log10(rat),4)+'\n= <span class="h">'+F(db,2)+' '+n+'</span>';re=F(db,2)+' '+n}
 else{var pw=v/m,li=r*Math.pow(10,pw);s='<span class="d">'+n+' → '+(u||'unidades')+':</span>\n'+rs+' × 10^('+F(v)+' / '+m+')\n= '+rs+' × 10^('+F(pw,4)+')\n= '+rs+' × '+FS(Math.pow(10,pw))+'\n= <span class="h">'+FS(li)+' '+u+'</span>';re=FS(li)+' '+u;if(tp==='dBW')s+='\n<span class="d">= '+FS(li*1000)+' mW</span>';if(tp==='dBm'&&li>=1)s+='\n<span class="d">= '+FS(li)+' W</span>'}SR(s,re)}
-// M3: Comb
 var cU='ms';
 function M3(){AN('Comb Filter',function(){_v.innerHTML='<div class="af"><div class="al">Retardo</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Unidad</div><div class="rg"><div class="rd on" onclick="RM(this);cU=\'ms\'">ms</div><div class="rd" onclick="RM(this);cU=\'s\'">s</div><div class="rd" onclick="RM(this);cU=\'m\'">metros</div></div><div class="al">Freq máxima (Hz)</div><input class="ai" id="b" type="number" inputmode="decimal" value="20000"><button class="ab" onclick="XCF()">Calcular</button><div id="R"></div></div>'})}
 function XCF(){var v=GV('a'),fm=GV('b')||20000;if(!v)return;var t,s='';if(cU==='ms'){t=v/1000;s+='<span class="d">A segundos:</span>\n'+F(v)+' / 1000 = '+FS(t)+' s\n\n'}else if(cU==='m'){t=v/V0;s+='<span class="d">Distancia → tiempo:</span>\nt = '+F(v)+' / '+F(V0)+' = '+FS(t)+' s = '+F(t*1000,4)+' ms\n\n'}else t=v;
@@ -254,20 +826,15 @@ var cc=rw.filter(function(r){return r.a<=fm}).length;s+='\n<span class="d">Cance
 var pe=360*fm*t,fc=Math.floor(pe/360),rm=pe-fc*360;s+='\n\n<span class="d">Comprobación '+F(fm,0)+' Hz:</span>\nφ = 360 × '+F(fm,0)+' × '+FS(t)+' = '+F(pe,1)+'°\n'+F(pe,1)+' / 360 = '+F(pe/360,2)+' ciclos';if(rm<1)s+=' → <span class="h">en fase (+6 dB)</span>';else if(Math.abs(rm-180)<1)s+=' → <span class="h">cancelación</span>';else s+=' → sobran '+F(rm,1)+'°';
 document.getElementById('R').innerHTML='<div class="ar"><div class="at">'+s+'</div></div>'+tb+'<canvas id="cc" width="800" height="300"></canvas>';
 var cv=document.getElementById('cc');if(!cv)return;var x=cv.getContext('2d'),W=cv.width,H=cv.height,pL=50,pR=20,pT=30,pB=40,gW=W-pL-pR,gH=H-pT-pB;x.fillStyle='#1c1c1e';x.fillRect(0,0,W,H);x.strokeStyle='#444';x.lineWidth=1;x.beginPath();x.moveTo(pL,pT);x.lineTo(pL,pT+gH);x.lineTo(pL+gW,pT+gH);x.stroke();function yP(db){return pT+gH*(1-(db+30)/36)}function xP(f){return pL+gW*(f/fm)}x.fillStyle='#8e8e93';x.font='11px -apple-system,sans-serif';x.textAlign='right';[6,0,-6,-12,-18,-24,-30].forEach(function(db){var y=yP(db);x.fillText(db,pL-6,y+4);x.strokeStyle=db===0?'#666':'#333';x.beginPath();x.moveTo(pL,y);x.lineTo(pL+gW,y);x.stroke()});x.textAlign='center';var xs=fm<=5000?500:fm<=10000?1000:2000;for(var f=0;f<=fm;f+=xs){var px=xP(f);x.fillStyle='#8e8e93';x.fillText(f>=1000?(f/1000)+'k':f,px,pT+gH+18)}x.strokeStyle='#ff9f0a';x.lineWidth=2;x.beginPath();for(var i=0;i<=800;i++){var f=fm*i/800,ph=2*Math.PI*f*t,a=2*Math.cos(ph/2),db=a>.001?20*Math.log10(a):-30;if(db<-30)db=-30;var px=xP(f),py=yP(db);i===0?x.moveTo(px,py):x.lineTo(px,py)}x.stroke();x.fillStyle='#fff';x.font='bold 13px -apple-system,sans-serif';x.textAlign='center';x.fillText('Comb filter, retardo '+F(t*1000,2)+' ms',W/2,18)}
-// M4: SPL dist
 function M4(){AN('SPL a distancia',function(){_v.innerHTML='<div class="af"><div class="al">Sensibilidad (dB SPL 1W/1m)</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Potencia (W)</div><input class="ai" id="b" type="number" inputmode="decimal"><div class="al">Distancia (m)</div><input class="ai" id="c" type="number" inputmode="decimal"><button class="ab" onclick="XSD()">Calcular SPL</button><div id="R"></div></div>'})}
 function XSD(){var se=GV('a'),w=GV('b'),dd=GV('c');if(!se||!w||!dd)return;var gw=10*Math.log10(w),s1=se+gw,ld=20*Math.log10(1/dd),sf=s1+ld;var s='<span class="d">Ganancia por potencia:</span>\n10 × log('+F(w,0)+' / 1) = <span class="h">'+F(gw,2)+' dB</span>\n\n<span class="d">SPL a 1 m:</span>\n'+F(se,0)+' + '+F(gw,2)+' = <span class="h">'+F(s1,2)+' dB SPL</span>\n\n<span class="d">Pérdida por distancia:</span>\n20 × log(1 / '+F(dd,0)+') = <span class="h">'+F(ld,2)+' dB</span>\n\n<span class="d">SPL a '+F(dd,0)+' m:</span>\n'+F(s1,2)+' + ('+F(ld,2)+') = <span class="h">'+F(sf,2)+' dB SPL</span>';var pa=2e-5*Math.pow(10,sf/20);s+='\n\n<span class="d">Presión:</span>\n2×10⁻⁵ × 10^('+F(sf,2)+' / 20) = <span class="h">'+F(pa,2)+' Pa</span>';SR(s,F(sf,2)+' dB SPL a '+F(dd,0)+' m')}
-// M5: Potencia
 function M5(){AN('Potencia',function(){_v.innerHTML='<div class="af"><div class="al">Sensibilidad (dB SPL 1W/1m)</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">SPL objetivo (dB SPL)</div><input class="ai" id="b" type="number" inputmode="decimal"><div class="al">Distancia (m)</div><input class="ai" id="c" type="number" inputmode="decimal"><button class="ab" onclick="XPW()">Calcular W</button><div id="R"></div></div>'})}
 function XPW(){var se=GV('a'),sp=GV('b'),dd=GV('c');if(!se||isNaN(sp)||!dd)return;var ld=20*Math.log10(1/dd),s1=sp-ld,dp=s1-se,w=Math.pow(10,dp/10);var s='<span class="d">Pérdida por distancia:</span>\n20 × log(1 / '+F(dd,0)+') = <span class="h">'+F(ld,2)+' dB</span>\n\n<span class="d">SPL necesario a 1 m:</span>\n'+F(sp,0)+' + '+F(Math.abs(ld),2)+' = <span class="h">'+F(s1,2)+' dB SPL</span>\n\n<span class="d">Aporta la potencia:</span>\n'+F(s1,2)+' − '+F(se,0)+' = <span class="h">'+F(dp,2)+' dB</span>\n\n<span class="d">Potencia:</span>\n1 × 10^('+F(dp,2)+' / 10) = <span class="h">'+FS(w)+' W</span>';if(w>=1000)s+=' ≈ '+F(w/1000,2)+' kW';s+='\n\n<span class="d">Headroom:</span>\n+3 dB → '+FS(w*2)+' W\n+6 dB → '+FS(w*4)+' W\n+10 dB → '+FS(w*10)+' W';SR(s,FS(w)+' W')}
-// M6: Fase
 var fU='ms';
 function M6(){AN('Fase',function(){_v.innerHTML='<div class="af"><div class="al">Frecuencia (Hz)</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Tiempo de diferencia</div><input class="ai" id="b" type="number" inputmode="decimal"><div class="al">Unidad</div><div class="rg"><div class="rd on" onclick="RM(this);fU=\'ms\'">ms</div><div class="rd" onclick="RM(this);fU=\'s\'">s</div></div><button class="ab" onclick="XPH()">Calcular</button><div id="R"></div></div>'})}
 function XPH(){var f=GV('a'),tv=GV('b');if(!f||isNaN(tv))return;var t=fU==='ms'?tv/1000:tv,ph=360*f*t,s='';if(fU==='ms')s+='<span class="d">A segundos:</span>\n'+F(tv)+' ms / 1000 = '+FS(t)+' s\n\n';s+='<span class="d">Desfase:</span>\nφ = 360 × f × t\nφ = 360 × '+F(f,0)+' × '+FS(t)+' = <span class="h">'+F(ph,2)+'°</span>\n\n';var fc=Math.floor(ph/360),rm=ph-fc*360;if(ph>360)s+='<span class="d">Ciclos:</span>\n'+F(ph,2)+' / 360 = '+F(ph/360,2)+'\nCompletos: '+fc+' → Resto: '+F(ph/360-fc,2)+' × 360 = <span class="h">'+F(rm,2)+'°</span>\n\n';var ep=ph>360?rm:ph,cr=Math.cos(ep*Math.PI/360),am=2*cr,db;if(Math.abs(am)<1e-10)db=-Infinity;else db=20*Math.log10(Math.abs(am));s+='<span class="d">Nivel:</span>\n20 × log(2 × cos('+F(ep,2)+'° / 2))\n= 20 × log(2 × cos('+F(ep/2,2)+'°))\n= 20 × log(2 × '+F(cr,4)+')\n= 20 × log('+F(am,4)+')\n';if(isFinite(db))s+='= <span class="h">'+F(db,2)+' dB</span>';else s+='= <span style="color:#ff3b30">−∞ dB (cancelación total)</span>';s+='\n\n<span class="d">Interpretación:</span>\n';if(ep<10||ep>350)s+='En fase → <span class="h">≈ +6 dB</span>';else if(ep<120)s+='Fase parcial → <span class="h">+'+F(db,2)+' dB</span>';else if(Math.abs(ep-120)<5||Math.abs(ep-240)<5)s+='Frontera → <span class="h">0 dB</span>';else if(Math.abs(ep-180)<5)s+='Contrafase → <span style="color:#ff3b30">cancelación</span>';else if(ep>120&&ep<240)s+='Cancelación parcial → <span style="color:#ff3b30">'+F(db,2)+' dB</span>';else s+='Suma parcial → <span class="h">'+F(db,2)+' dB</span>';SR(s,isFinite(db)?F(ep,2)+'° → '+F(db,2)+' dB':F(ep,2)+'° → Cancelación')}
-// M7: Ley inversa
 function M7(){AN('Ley inversa',function(){_v.innerHTML='<div class="af"><div class="al">Nivel conocido (dB SPL)</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Distancia conocida (m)</div><input class="ai" id="b" type="number" inputmode="decimal" value="1"><div class="al">Distancia objetivo (m)</div><input class="ai" id="c" type="number" inputmode="decimal"><button class="ab" onclick="XIV()">Calcular</button><div id="R"></div></div>'})}
 function XIV(){var db=GV('a'),d1=GV('b'),d2=GV('c');if(isNaN(db)||!d1||!d2)return;var dl=20*Math.log10(d1/d2),df=db+dl;SR('<span class="d">ΔL = 20 × log(d₁ / d₂)</span>\n= 20 × log('+F(d1)+' / '+F(d2)+')\n= 20 × '+F(Math.log10(d1/d2),4)+'\n= <span class="h">'+F(dl,2)+' dB</span>\n\n<span class="d">Nivel a '+F(d2)+' m:</span>\n'+F(db,2)+' + ('+F(dl,2)+') = <span class="h">'+F(df,2)+' dB SPL</span>',F(df,2)+' dB SPL a '+F(d2)+' m')}
-// M8: Directividad
 var rU='m';
 function M8(){AN('Directividad',function(){_v.innerHTML='<div class="af"><div class="al">Tamaño fuente</div><input class="ai" id="a" type="number" inputmode="decimal"><div class="al">Unidad</div><div class="rg"><div class="rd on" onclick="RM(this);rU=\'m\'">m</div><div class="rd" onclick="RM(this);rU=\'cm\'">cm</div><div class="rd" onclick="RM(this);rU=\'mm\'">mm</div></div><div class="al">Frecuencia (Hz)</div><input class="ai" id="b" type="number" inputmode="decimal"><div class="al">Temp ºC (opc)</div><input class="ai" id="c" type="number" inputmode="decimal" placeholder="20"><button class="ab" onclick="XDR()">Calcular</button><div id="R"></div></div>'})}
 function XDR(){var sz=GV('a'),f=GV('b'),T=GO('c'),V=VS(T);if(!sz||!f)return;var c={m:1,cm:.01,mm:.001},sm=sz*c[rU],l=V/f,s='';if(rU!=='m')s+='<span class="d">A metros:</span>\n'+F(sz)+' '+rU+' = '+F(sm,4)+' m\n\n';if(T!=null)s+='<span class="d">V a '+F(T,0)+'ºC = '+F(V)+' m/s</span>\n\n';s+='<span class="d">λ = V / f = '+F(V)+' / '+F(f,0)+' = <span class="h">'+F(l,4)+' m</span></span>\n\n';if(sm>l)s+=F(sm,4)+' m > '+F(l,4)+' m → <span class="h">Más directiva</span>';else s+=F(sm,4)+' m < '+F(l,4)+' m → <span class="h">Omnidireccional</span>';var fl=V/sm;s+='\n\n<span class="d">Freq límite difracción:</span>\nf = '+F(V)+' / '+F(sm,4)+' = <span class="h">'+F(fl,0)+' Hz</span>\nPor debajo → la onda rodea el objeto';SR(s,sm>l?'Más directiva':'Omnidireccional')}
