@@ -95,13 +95,110 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-ap
 <div id="avc"></div>
 </div>
 <script>
-var d='0',pv=null,op=null,fr=true,lN=null,lO=null,$=document.getElementById('display');
-function U(){var s=d,l=s.replace(/[^0-9]/g,'').length;$.style.fontSize=l>11?'min(46px,10vw)':l>9?'min(58px,12vw)':l>8?'min(70px,15vw)':'min(88px,18vw)';$.textContent=s.replace(/\./g,',');document.getElementById('acb').textContent=(d!=='0'&&!fr)?'C':'AC'}
-function N(n){var c=n===','?'.':n;if(c==='.'&&d.includes('.'))return;if(fr){d=c==='.'?'0.':c;fr=false}else{d=d==='0'&&c!=='.'?c:d+c}U();CH()}
-function O(o){if(o==='='){if(pv!==null&&op){lN=parseFloat(d);lO=op;d=String(K(parseFloat(pv),parseFloat(d),op));op=null;pv=null;fr=true;U();CH()}else if(lO&&lN!==null){d=String(K(parseFloat(d),lN,lO));fr=true;U()}return}lN=null;lO=null;if(pv!==null&&op&&!fr)d=String(K(parseFloat(pv),parseFloat(d),op));pv=d;op=o;fr=true;U();document.querySelectorAll('.btn-op').forEach(function(b){b.classList.toggle('hi',b.dataset.op===o&&o!=='=')})}
+// === iOS 18 Calculator Engine — expression display ===
+var cur='0',expr='',pv=null,op=null,fr=true,lN=null,lO=null,justEvald=false;
+var $=document.getElementById('display');
+
+// Format number for display: comma decimal, period thousands
+function fmtNum(s){
+  if(s==='Error')return s;
+  var n=parseFloat(s);if(isNaN(n))return'Error';
+  // If user is typing and has trailing dot or decimals, preserve
+  if(s.includes('.')&&!justEvald){
+    var parts=s.split('.');
+    var intP=parts[0].replace(/^-/,'');
+    var neg=s.startsWith('-')?'−':'';
+    // Add thousand separators with period
+    var formatted=intP.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+    return neg+formatted+','+parts[1];
+  }
+  // For results or integers
+  var str=String(n);
+  if(str.includes('e'))return str.replace('.',',');
+  var parts=str.split('.');
+  var intP=parts[0].replace(/^-/,'');
+  var neg=n<0?'−':'';
+  var formatted=intP.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  if(parts[1])return neg+formatted+','+parts[1];
+  return neg+formatted;
+}
+
+function U(){
+  // Build display text
+  var txt;
+  if(op&&fr){
+    // Show expression: prev op (waiting for next number)
+    txt=fmtNum(pv)+op;
+  } else if(op&&!fr){
+    // Show expression: prev op current
+    txt=fmtNum(pv)+op+fmtNum(cur);
+  } else {
+    txt=fmtNum(cur);
+  }
+  // Auto-size font based on length
+  var len=txt.length;
+  $.style.fontSize=len>16?'min(32px,8vw)':len>12?'min(42px,10vw)':len>9?'min(56px,13vw)':len>7?'min(68px,15vw)':'min(88px,18vw)';
+  $.textContent=txt;
+  // AC vs C
+  document.getElementById('acb').textContent=(cur!=='0'&&!fr)?'C':'AC';
+}
+
+function N(n){
+  var c=n===','?'.':n;
+  if(c==='.'&&cur.includes('.'))return;
+  justEvald=false;
+  if(fr){cur=c==='.'?'0.':c;fr=false}
+  else{cur=cur==='0'&&c!=='.'?c:cur+c}
+  U();CH();
+}
+
+function O(o){
+  if(o==='='){
+    if(pv!==null&&op){
+      lN=parseFloat(cur);lO=op;
+      cur=String(K(parseFloat(pv),parseFloat(cur),op));
+      op=null;pv=null;fr=true;justEvald=true;U();CH();
+    }else if(lO&&lN!==null){
+      cur=String(K(parseFloat(cur),lN,lO));
+      fr=true;justEvald=true;U();
+    }
+    return;
+  }
+  lN=null;lO=null;justEvald=false;
+  if(pv!==null&&op&&!fr){
+    cur=String(K(parseFloat(pv),parseFloat(cur),op));
+  }
+  pv=cur;op=o;fr=true;U();
+  document.querySelectorAll('.btn-op').forEach(function(b){
+    b.classList.toggle('hi',b.dataset.op===o&&o!=='=');
+  });
+}
+
 function K(a,b,o){var r=o==='+'?a+b:o==='−'?a-b:o==='×'?a*b:o==='÷'?b?a/b:NaN:a;return Math.round(r*1e10)/1e10}
 function CH(){document.querySelectorAll('.btn-op').forEach(function(b){b.classList.remove('hi')})}
-function FN(f){if(f==='ac'){if(d!=='0'&&!fr){d='0';fr=false}else{d='0';pv=null;op=null;fr=true;lN=null;lO=null}CH();U()}else if(f==='sign'){if(d!=='0'){d=String(-parseFloat(d));U()}}else if(f==='pct'){d=String(parseFloat(d)/100);fr=true;U()}else if(f==='bs'){if(!fr&&d.length>1){d=d.slice(0,-1);if(d==='-')d='0'}else d='0';U()}}
+
+function FN(f){
+  if(f==='ac'){
+    if(cur!=='0'&&!fr){cur='0';fr=false}
+    else{cur='0';pv=null;op=null;fr=true;lN=null;lO=null;justEvald=false}
+    CH();U();
+  }else if(f==='sign'){
+    if(cur!=='0'){
+      var n=-parseFloat(cur);
+      cur=String(n);
+      U();
+    }
+  }else if(f==='pct'){
+    cur=String(parseFloat(cur)/100);fr=true;justEvald=true;U();
+  }else if(f==='bs'){
+    if(!fr&&cur.length>1){
+      cur=cur.slice(0,-1);
+      if(cur==='-'||cur==='')cur='0';
+    }else{cur='0'}
+    U();
+  }
+}
+
 document.querySelectorAll('[data-num]').forEach(function(b){b.onclick=function(){N(b.dataset.num)}});
 document.querySelectorAll('[data-op]').forEach(function(b){b.onclick=function(){O(b.dataset.op)}});
 document.querySelectorAll('[data-fn]').forEach(function(b){b.onclick=function(){FN(b.dataset.fn)}});
