@@ -165,7 +165,7 @@ body.sci #deg-indicator{align-self:flex-start;margin-bottom:auto;order:-1}
 body.sci .sci-grid{flex:0 0 auto;grid-auto-rows:var(--rh);gap:8px 7px;padding-bottom:8px}
 body.sci .btn-grid{flex:0 0 auto;grid-auto-rows:var(--rh);gap:8px 7px;padding-bottom:12px}
 body.sci .btn{height:auto;font-size:24px}
-body.sci .btn-op{font-size:28px}
+body.sci .op-ic{width:24px;height:24px;stroke-width:2.4}
 body.sci .btn-fn{font-size:20px}
 }
 @media (orientation:landscape){
@@ -187,14 +187,62 @@ body.sci .sci-btn{border-radius:999px;font-size:15px}
 @media (orientation:portrait){
 body.sci #deg-indicator{position:absolute;left:2px;bottom:14px;margin:0;padding:0;font-size:11px}
 }
+
+/* ===== Clon del diseño de referencia (medido sobre la captura, 430 pt de ancho) ===== */
+:root{--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--u:min(1vw,5px)}
+#calc{padding:var(--sat) calc(var(--u)*3.72) calc(var(--sab) + 28px);max-width:500px;margin:0 auto}
+body.sci #calc{max-width:none}
+#top-bar{padding:0 4px}
+.top-icon{width:44px;height:44px;background:#141414;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.top-icon:active{background:#3a3a3c}
+.top-icon svg{width:28px;height:28px;stroke:#f4f4f4}
+.top-icon svg.calc-ic{stroke:none}
+.top-icon svg.calc-ic .cb{fill:#f4f4f4}
+.top-icon svg.calc-ic .cd rect,.top-icon svg.calc-ic .cd circle{fill:#141414}
+#display-area{padding:0 3px calc(var(--u)*2.6) 0}
+#display{font-weight:400;letter-spacing:-.5px}
+.btn-grid{gap:calc(var(--u)*1.93);padding-bottom:0}
+.btn{aspect-ratio:258/248;border-radius:50%;font-size:calc(var(--u)*9.3);font-weight:400;box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 0 0 1px rgba(255,255,255,.08)}
+.btn,.sci-btn{color:#f5f5f5}
+.btn-num{background:linear-gradient(180deg,#353535,#313131)}
+.btn-fn{background:linear-gradient(180deg,#606060,#595959);color:#f5f5f5;font-size:calc(var(--u)*9.3)}
+.btn-op{background:linear-gradient(180deg,#f29a38,#e98f33);color:#fefaf2;font-size:calc(var(--u)*12);font-weight:300}
+.btn-op.hi{background:#fff;color:#f09a37}
+.btn-fn svg{width:calc(var(--u)*9.4);height:auto;stroke:#f5f5f5;stroke-width:2;fill:none}
+.btn[data-fn="sign"]{font-size:calc(var(--u)*10.5)}
+.btn[data-fn="pct"]{font-size:calc(var(--u)*10.5);font-weight:300}
+.op-ic{width:calc(var(--u)*10.2);height:calc(var(--u)*10.2);pointer-events:none;stroke-width:2.3}
+.btn svg{pointer-events:none}
+.sci-btn{background:linear-gradient(180deg,#222224,#1a1a1c)}
+.sci-btn.active-2nd{background:#5b5b5e}
+@media (orientation:portrait){
+body.sci #calc{padding:var(--sat) 14px calc(var(--sab) + 28px)}
+body.sci .btn-grid{padding-bottom:0}
+body.sci .btn{aspect-ratio:auto;border-radius:999px;font-size:24px}
+body.sci .op-ic{width:26px;height:26px;stroke-width:2.4}
+body.sci .btn-fn{font-size:21px}
+body.sci .btn-fn svg{width:26px}
+}
+@media (orientation:landscape){
+body.sci #calc{padding-top:var(--sat);padding-bottom:max(8px,var(--sab))}
+body.sci .btn{aspect-ratio:auto;border-radius:999px;font-size:22px}
+body.sci .op-ic{width:24px;height:24px;stroke-width:2.4}
+body.sci .btn-fn{font-size:19px}
+body.sci .btn-fn svg{width:24px}
+body.sci .top-icon{width:34px;height:34px}
+body.sci .top-icon svg{width:22px;height:22px}
+}
+/* App en pantalla de inicio (iOS): la ventana mide menos que la pantalla y deja un hueco abajo */
+html.sa-fix,html.sa-fix body{height:calc(100% + var(--sat))}
+html.sa-fix #calc,html.sa-fix #av{height:calc(100dvh + var(--sat))}
 </style>
 </head>
 <body>
 <!-- CALCULATOR -->
 <div id="calc">
 <div id="top-bar">
-<button class="top-icon" id="hist-btn" aria-label="Historial"><svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></button>
-<button class="top-icon" id="mode-btn" aria-label="Modo"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="18" height="4.5" rx="1.2" fill="#aaa"/><rect x="2" y="8.5" width="4.5" height="4.5" rx="1.2" fill="#aaa"/><rect x="8.75" y="8.5" width="4.5" height="4.5" rx="1.2" fill="#aaa"/><rect x="15.5" y="8.5" width="4.5" height="4.5" rx="1.2" fill="#aaa"/><rect x="2" y="15" width="4.5" height="4.5" rx="1.2" fill="#aaa"/><rect x="8.75" y="15" width="4.5" height="4.5" rx="1.2" fill="#aaa"/><rect x="15.5" y="15" width="4.5" height="4.5" rx="1.2" fill="#aaa"/></svg></button>
+<button class="top-icon" id="hist-btn" aria-label="Historial"><svg viewBox="0 0 28 28" fill="none" stroke="#f4f4f4" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="14" r="9.9"/><path d="M14 7.9V14H8.4"/></svg></button>
+<button class="top-icon" id="mode-btn" aria-label="Modo"><svg class="calc-ic" viewBox="0 0 28 28"><rect class="cb" x="6" y="2.7" width="16" height="22.6" rx="3.2"/><g class="cd"><rect x="8.1" y="4.7" width="11.8" height="5" rx="1.5"/><circle cx="9.8" cy="13.4" r="1.5"/><circle cx="14" cy="13.4" r="1.5"/><circle cx="18.2" cy="13.4" r="1.5"/><circle cx="9.8" cy="17.6" r="1.5"/><circle cx="14" cy="17.6" r="1.5"/><circle cx="18.2" cy="17.6" r="1.5"/><circle cx="9.8" cy="21.8" r="1.5"/><circle cx="14" cy="21.8" r="1.5"/><circle cx="18.2" cy="21.8" r="1.5"/></g></svg></button>
 </div>
 <div id="mode-overlay" onclick="closeModeDropdown()"></div>
 <div id="mode-dropdown">
@@ -212,26 +260,26 @@ body.sci #deg-indicator{position:absolute;left:2px;bottom:14px;margin:0;padding:
 <div class="sci-grid" id="sci-grid"></div>
 <!-- Basic button grid -->
 <div class="btn-grid" id="basic-grid">
-<button class="btn btn-fn" data-fn="bs"><svg viewBox="0 0 24 24"><path d="M9 4l-6 8 6 8h13V4H9z"/><path d="M14 9l4 6M18 9l-4 6"/></svg></button>
+<button class="btn btn-fn" data-fn="bs" aria-label="Borrar"><svg viewBox="0 0 34 26"><path d="M11.2 2.2h17.3a3.3 3.3 0 0 1 3.3 3.3v15a3.3 3.3 0 0 1-3.3 3.3H11.2a3.3 3.3 0 0 1-2.4-1L1.9 15.1a3 3 0 0 1 0-4.2L8.8 3.2a3.3 3.3 0 0 1 2.4-1z"/><path d="M15.2 8.2l9.6 9.6M24.8 8.2l-9.6 9.6"/></svg></button>
 <button class="btn btn-fn" id="acb" data-fn="ac">AC</button>
 <button class="btn btn-fn" data-fn="pct">%</button>
-<button class="btn btn-op" data-op="/">÷</button>
+<button class="btn btn-op" data-op="/" aria-label="Dividir"><svg class="op-ic" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 16h22"/><circle cx="16" cy="8" r="1.7" fill="currentColor" stroke="none"/><circle cx="16" cy="24" r="1.7" fill="currentColor" stroke="none"/></svg></button>
 <button class="btn btn-num" data-num="7">7</button>
 <button class="btn btn-num" data-num="8">8</button>
 <button class="btn btn-num" data-num="9">9</button>
-<button class="btn btn-op" data-op="*">×</button>
+<button class="btn btn-op" data-op="*" aria-label="Multiplicar"><svg class="op-ic" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7.5 7.5l17 17M24.5 7.5l-17 17"/></svg></button>
 <button class="btn btn-num" data-num="4">4</button>
 <button class="btn btn-num" data-num="5">5</button>
 <button class="btn btn-num" data-num="6">6</button>
-<button class="btn btn-op" data-op="-">−</button>
+<button class="btn btn-op" data-op="-" aria-label="Restar"><svg class="op-ic" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 16h22"/></svg></button>
 <button class="btn btn-num" data-num="1">1</button>
 <button class="btn btn-num" data-num="2">2</button>
 <button class="btn btn-num" data-num="3">3</button>
-<button class="btn btn-op" data-op="+">+</button>
+<button class="btn btn-op" data-op="+" aria-label="Sumar"><svg class="op-ic" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 16h22M16 5v22"/></svg></button>
 <button class="btn btn-num" data-fn="sign">⁺⁄₋</button>
 <button class="btn btn-num" data-num="0">0</button>
 <button class="btn btn-num" data-num=",">,</button>
-<button class="btn btn-op" id="eq" data-op="=">=</button>
+<button class="btn btn-op" id="eq" data-op="=" aria-label="Igual"><svg class="op-ic" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7.5 11.6h17M7.5 20.4h17"/></svg></button>
 </div>
 </div>
 
@@ -382,7 +430,7 @@ function updateDisplay() {
   var html = buildExpression();
   $disp.innerHTML = html;
   // Tamaño: el máximo del modo, reducido lo justo para que quepa en el ancho
-  var base = isScientific ? (wasLandscape ? 44 : 56) : Math.min(88, window.innerWidth * 0.18);
+  var base = isScientific ? (wasLandscape ? 44 : 56) : Math.min(82, window.innerWidth * 0.167);
   $disp.style.fontSize = base + 'px';
   var avail = $disp.parentElement.clientWidth - 12 - ((isScientific && !isDeg) ? 30 : 0), w = $disp.scrollWidth;
   if (w > avail && w > 0) $disp.style.fontSize = Math.max(16, Math.floor(base * avail / w * 10) / 10) + 'px';
@@ -1024,13 +1072,13 @@ function initBtnAnimations() {
   document.querySelectorAll('.btn').forEach(function(btn) {
     function press() {
       btn.style.transition = 'none';
-      if (btn.classList.contains('btn-num')) btn.style.backgroundColor = '#555';
-      else if (btn.classList.contains('btn-op')) btn.style.backgroundColor = btn.classList.contains('hi') ? '#e0e0e0' : '#ffcc33';
-      else if (btn.classList.contains('btn-fn')) btn.style.backgroundColor = '#8a8a8d';
+      if (btn.classList.contains('btn-num')) btn.style.background = '#6a6a6d';
+      else if (btn.classList.contains('btn-op')) btn.style.background = btn.classList.contains('hi') ? '#e0e0e0' : '#ffcc33';
+      else if (btn.classList.contains('btn-fn')) btn.style.background = '#9a9a9d';
     }
     function release() {
-      btn.style.transition = 'background-color 0.2s ease-out';
-      btn.style.backgroundColor = '';
+      btn.style.transition = 'none';
+      btn.style.background = '';
     }
     btn.addEventListener('touchstart', press, {passive: true});
     btn.addEventListener('touchend', release);
@@ -1048,11 +1096,11 @@ var sciObserver = new MutationObserver(function() {
     btn._animBound = true;
     function press() {
       btn.style.transition = 'none';
-      btn.style.backgroundColor = btn.classList.contains('active-2nd') ? '#8a8a8d' : '#3a3a3c';
+      btn.style.background = btn.classList.contains('active-2nd') ? '#8a8a8d' : '#3a3a3c';
     }
     function release() {
-      btn.style.transition = 'background-color 0.2s ease-out';
-      btn.style.backgroundColor = '';
+      btn.style.transition = 'none';
+      btn.style.background = '';
     }
     btn.addEventListener('touchstart', press, {passive: true});
     btn.addEventListener('touchend', release);
@@ -1066,6 +1114,15 @@ sciObserver.observe(sciGridEl, {childList: true});
 
 wasLandscape = mql.matches && window.innerWidth > 500;
 if (wasLandscape) toggleScientific();
+// iOS, app en pantalla de inicio: si la ventana es más baja que la pantalla, se estira hasta abajo
+function fixStandaloneHeight() {
+  var st = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  var portrait = window.innerHeight >= window.innerWidth;
+  var sh = Math.max(screen.width, screen.height);
+  document.documentElement.classList.toggle('sa-fix', st && portrait && sh - window.innerHeight > 20);
+}
+fixStandaloneHeight();
+window.addEventListener('resize', fixStandaloneHeight);
 loadCalcHistory();
 updateDisplay();
 
