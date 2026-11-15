@@ -171,6 +171,22 @@ body.sci .btn-fn{font-size:20px}
 @media (orientation:landscape){
 body.sci .sci-btn{border-radius:999px;font-size:15px}
 }
+
+/* ===== Expresión estilo iOS ===== */
+#display .o,#prev-expr .o{color:#8e8e93}
+#display .g{color:#5a5a5e}
+#display sup,#prev-expr sup{font-size:.6em;line-height:0;position:relative;top:-.62em;vertical-align:baseline}
+#display sub,#prev-expr sub{font-size:.6em;line-height:0;position:relative;top:.25em;vertical-align:baseline}
+#display i,#prev-expr i{font-family:'Times New Roman',Times,serif;font-style:italic}
+#display{overflow:visible;padding-top:.3em}
+#display-area{position:relative}
+.btn-op{background:#ff9500}
+.btn-op.hi{background:#fff;color:#ff9500}
+.top-icon{width:38px;height:38px}
+.top-icon svg{width:19px;height:19px}
+@media (orientation:portrait){
+body.sci #deg-indicator{position:absolute;left:2px;bottom:14px;margin:0;padding:0;font-size:11px}
+}
 </style>
 </head>
 <body>
@@ -249,8 +265,11 @@ var cur = '0';          // numero actual (cadena)
 var entering = false;   // el usuario esta tecleando digitos
 var hasVal = false;     // cur es un operando valido (tecleado o calculado)
 var justEvald = false;  // cur viene de pulsar =
+var curDisp = null;     // HTML con el que se muestra cur (sin(9), 8², π...) o null
+var curPct = false;     // cur lleva % detrás
+var curTyped = false;   // cur se estaba tecleando antes de añadirle %
 var lastOp = null, lastNum = null;
-var isScientific = false, is2nd = false, isDeg = false;
+var isScientific = false, is2nd = false, isDeg = true;
 var memory = 0, memHasValue = false;
 var openParens = 0;
 var calcHistory = [];
@@ -276,7 +295,7 @@ function showToast(msg) {
 // --- Formato de numeros (es) ---
 function sep(intStr) { return intStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
 function fmtTyped(s) {
-  var neg = s.charAt(0) === '-' ? '−' : '';
+  var neg = s.charAt(0) === '-' ? '-' : '';
   if (neg) s = s.slice(1);
   var i = s.indexOf('.');
   if (i === -1) return neg + sep(s);
@@ -286,14 +305,15 @@ function fmtRes(n) {
   if (isNaN(n)) return 'Maths error';
   if (!isFinite(n)) return 'Overflow';
   if (n === 0) return '0';
-  var a = Math.abs(n), neg = n < 0 ? '−' : '';
-  if (a >= 1e12 || a < 1e-6) {
-    var p = a.toExponential(6).split('e');
+  var a = Math.abs(n), neg = n < 0 ? '-' : '';
+  if (a >= 1e14 || a < 1e-6) {
+    var p = a.toExponential(9).split('e');
     var m = p[0].replace(/\.?0+$/, '');
     return neg + m.replace('.', ',') + 'e' + p[1].replace('+', '');
   }
-  var s = a.toPrecision(12);
-  if (s.indexOf('e') !== -1) s = String(Number(s));
+  // 14 cifras significativas, como iOS
+  var v = Number(a.toPrecision(14));
+  var s = v.toFixed(Math.min(20, Math.max(0, 13 - Math.floor(Math.log10(v)))));
   if (s.indexOf('.') !== -1) s = s.replace(/\.?0+$/, '');
   var parts = s.split('.');
   return neg + sep(parts[0]) + (parts[1] ? ',' + parts[1] : '');
@@ -301,7 +321,8 @@ function fmtRes(n) {
 function isErr() { return hasVal && ERRS[cur] === 1; }
 function fmtCur() {
   if (ERRS[cur] === 1) return cur;
-  return entering ? fmtTyped(cur) : fmtRes(parseFloat(cur));
+  var h = curDisp !== null ? curDisp : (entering ? fmtTyped(cur) : fmtRes(parseFloat(cur)));
+  return curPct ? h + '%' : h;
 }
 function norm(r) {
   if (isNaN(r)) return NaN;
@@ -311,69 +332,89 @@ function norm(r) {
 
 // --- Pantalla ---
 function dispOp(o) {
-  if (o === '+') return '+';
-  if (o === '-') return '−';
-  if (o === '*') return '×';
-  if (o === '/') return '÷';
+  if (o === '+') return '<span class="o">+</span>';
+  if (o === '-') return '<span class="o">−</span>';
+  if (o === '*') return '<span class="o">×</span>';
+  if (o === '/') return '<span class="o">÷</span>';
   if (o === '^') return '^';
-  if (o === 'ee') return 'E';
-  if (o === 'yx') return ' yˣ ';
-  if (o === 'yroot') return ' ʸ√ ';
-  if (o === 'logbase') return ' logᵧ ';
+  if (o === 'ee') return 'e';
+  if (o === 'yx') return ' y<sup>x</sup> ';
+  if (o === 'yroot') return ' <sup>y</sup>√ ';
+  if (o === 'logbase') return ' log<sub>y</sub> ';
   return o;
 }
-function tokensText(toks) {
-  var expr = '';
+// Los negativos que no van al principio se muestran entre paréntesis: 996×(-63,5)
+function wrapNeg(h, first) { return (!first && h.charAt(0) === '-') ? '(' + h + ')' : h; }
+function plainText(h) {
+  var d = document.createElement('div');
+  d.innerHTML = String(h).replace(/<sup>(.*?)<\/sup>/g, '^$1');
+  return d.textContent;
+}
+function tokensText(toks, tail) {
+  var expr = '', sup = false;
   for (var i = 0; i < toks.length; i++) {
     var t = toks[i];
-    if (t.type === 'num') expr += t.disp;
-    else if (t.type === 'op') expr += dispOp(t.value);
-    else expr += t.value;
+    if (t.type === 'num') {
+      if (sup) { expr += '<sup>' + t.disp + '</sup>'; sup = false; }
+      else expr += wrapNeg(t.disp, expr === '');
+    } else if (t.type === 'op') {
+      if (t.hidden) continue;
+      if (t.value === '^') {
+        var nx = toks[i + 1];
+        if (nx ? nx.type === 'num' : true) { sup = true; continue; }
+      }
+      expr += dispOp(t.value);
+    } else {
+      if (sup) { expr += '^'; sup = false; }
+      expr += t.value;
+    }
   }
+  if (tail != null) expr += sup ? '<sup>' + tail + '</sup>' : wrapNeg(tail, expr === '');
+  else if (sup) expr += '<sup class="g">□</sup>';
   return expr;
 }
 function buildExpression() {
-  var expr = tokensText(tokens);
-  if (hasVal) expr += fmtCur();
+  var expr = tokensText(tokens, hasVal ? fmtCur() : null);
+  for (var i = 0; i < openParens; i++) expr += '<span class="g">)</span>';
   return expr || '0';
 }
 function updateDisplay() {
-  var txt = buildExpression();
-  var len = txt.length;
-  if (isScientific) {
-    if (wasLandscape) $disp.style.fontSize = len > 34 ? '20px' : len > 26 ? '26px' : len > 18 ? '34px' : '44px';
-    else $disp.style.fontSize = len > 20 ? '24px' : len > 16 ? '28px' : len > 12 ? '34px' : len > 9 ? '42px' : len > 7 ? '50px' : '56px';
-  } else {
-    $disp.style.fontSize = len > 16 ? 'min(32px,8vw)' : len > 12 ? 'min(42px,10vw)' : len > 9 ? 'min(56px,13vw)' : len > 7 ? 'min(68px,15vw)' : 'min(88px,18vw)';
-  }
-  $disp.textContent = txt;
+  var html = buildExpression();
+  $disp.innerHTML = html;
+  // Tamaño: el máximo del modo, reducido lo justo para que quepa en el ancho
+  var base = isScientific ? (wasLandscape ? 44 : 56) : Math.min(88, window.innerWidth * 0.18);
+  $disp.style.fontSize = base + 'px';
+  var avail = $disp.parentElement.clientWidth - 12 - ((isScientific && !isDeg) ? 30 : 0), w = $disp.scrollWidth;
+  if (w > avail && w > 0) $disp.style.fontSize = Math.max(16, Math.floor(base * avail / w * 10) / 10) + 'px';
   // Expresión anterior encima del resultado (solo mientras se muestra un resultado de =)
-  if (!justEvald) { $prevExpr.classList.remove('show'); $prevExpr.textContent = ''; }
+  if (!justEvald) { $prevExpr.classList.remove('show'); $prevExpr.innerHTML = ''; }
   else if ($prevExpr.textContent) {
     var mainSize = parseFloat(window.getComputedStyle($disp).fontSize) || 88;
-    var pl = $prevExpr.textContent.length, ps = mainSize * 0.28;
-    if (pl > 20) ps *= 0.7; else if (pl > 16) ps *= 0.8; else if (pl > 12) ps *= 0.9;
-    $prevExpr.style.fontSize = Math.max(12, Math.min(28, ps)) + 'px';
+    $prevExpr.style.fontSize = Math.max(15, Math.min(26, mainSize * 0.42)) + 'px';
     $prevExpr.classList.add('show');
   }
-  $acb.textContent = (entering && hasVal && cur !== '0' && cur !== '-0') ? 'C' : 'AC';
-  $degInd.textContent = isDeg ? 'Deg' : 'Rad';
+  $acb.textContent = (tokens.length > 0 || (hasVal && !justEvald)) ? 'C' : 'AC';
+  $degInd.textContent = 'Rad';
+  $degInd.style.visibility = isDeg ? 'hidden' : 'visible';
 }
 
 // --- Utilidades de tokens ---
 function lastTok() { return tokens.length ? tokens[tokens.length - 1] : null; }
 function isP(t, v) { return !!t && t.type === 'paren' && t.value === v; }
-function numTok(v, d, typed) { return {type: 'num', value: v, disp: d, typed: !!typed}; }
+function numTok(v, d, typed, pct) { return {type: 'num', value: v, disp: d, typed: !!typed, pct: !!pct}; }
 function pushCur() {
   var v = cur;
   if (entering) {
     if (v.charAt(v.length - 1) === '.') v = v.slice(0, -1);
     if (v === '-0' || v === '' || v === '-') v = '0';
+    cur = v;
   }
-  tokens.push(numTok(v, entering ? fmtTyped(v) : fmtRes(parseFloat(v)), entering));
+  tokens.push(numTok(v, fmtCur(), entering && curDisp === null && !curPct, curPct));
+  curDisp = null; curPct = false;
 }
 function allClear() {
   cur = '0'; tokens = []; entering = false; hasVal = false; justEvald = false;
+  curDisp = null; curPct = false;
   lastOp = null; lastNum = null; openParens = 0;
 }
 
@@ -384,10 +425,12 @@ function inputNum(n) {
   if (!entering) {
     if (hasVal) {
       if (justEvald) { tokens = []; openParens = 0; }
+      else { pushCur(); tokens.push({type: 'op', value: '*'}); }   // sin(9)5 → sin(9)×5
     } else if (isP(lastTok(), ')')) {
       tokens.push({type: 'op', value: '*'});
     }
     cur = (c === '.') ? '0.' : c;
+    curDisp = null; curPct = false;
     entering = true; hasVal = true;
   } else {
     if (c === '.') {
@@ -417,7 +460,7 @@ function inputOp(o) {
     else if (l.type === 'op') tokens.pop();
   }
   tokens.push({type: 'op', value: o});
-  cur = '0'; hasVal = false; entering = false; justEvald = false;
+  cur = '0'; hasVal = false; entering = false; justEvald = false; curDisp = null; curPct = false;
   lastOp = null; lastNum = null;
   highlightOp(o);
   updateDisplay();
@@ -425,10 +468,10 @@ function inputOp(o) {
 
 function setResult(r, exprDisplay) {
   var s = isNaN(r) ? 'Maths error' : !isFinite(r) ? 'Overflow' : String(r);
-  if (exprDisplay != null && ERRS[s] !== 1) addCalcHistory(exprDisplay, fmtRes(r), r);
-  cur = s; tokens = []; openParens = 0;
+  if (exprDisplay != null && ERRS[s] !== 1) addCalcHistory(plainText(exprDisplay), fmtRes(r), r);
+  cur = s; tokens = []; openParens = 0; curDisp = null; curPct = false;
   entering = false; hasVal = true; justEvald = true;
-  $prevExpr.textContent = exprDisplay || '';
+  $prevExpr.innerHTML = exprDisplay || '';
   clearHighlight();
   updateDisplay();
 }
@@ -437,12 +480,14 @@ function doEquals() {
   if (isErr()) return;
   if (tokens.length === 0) {
     if (!hasVal) return;
-    if (lastOp && lastNum !== null) {
+    if (curDisp !== null || curPct) {
+      setResult(norm(curValue()), fmtCur());
+    } else if (lastOp && lastNum !== null) {
       var a = parseFloat(cur);
-      var ex = fmtCur() + dispOp(lastOp) + fmtRes(lastNum);
+      var ex = fmtCur() + dispOp(lastOp) + wrapNeg(fmtRes(lastNum), false);
       setResult(norm(applyOp(a, lastNum, lastOp)), ex);
     } else {
-      cur = String(parseFloat(cur)); entering = false; justEvald = true; $prevExpr.textContent = '';
+      cur = String(parseFloat(cur)); entering = false; justEvald = true; $prevExpr.innerHTML = '';
       updateDisplay();
     }
     return;
@@ -453,17 +498,18 @@ function doEquals() {
     var l = lastTok();
     if (l.type === 'op') {
       var p = tokens[tokens.length - 2];
-      if (p && p.type === 'num') tokens.push(numTok(p.value, p.disp, p.typed));
+      if (l.value === '+' || l.value === '-' || l.value === '*' || l.value === '/') tokens.pop();   // √(9)+ = → 3
+      else if (p && p.type === 'num') tokens.push(numTok(p.value, p.disp, p.typed, p.pct));
       else tokens.pop();
     } else if (isP(l, '(')) {
       tokens.push(numTok('0', '0', false));
     }
   }
   var n = tokens.length;
-  if (n >= 2 && tokens[n - 1].type === 'num' && tokens[n - 2].type === 'op') {
+  if (n >= 2 && tokens[n - 1].type === 'num' && !tokens[n - 1].pct && tokens[n - 2].type === 'op' && !tokens[n - 2].hidden) {
     lastOp = tokens[n - 2].value; lastNum = parseFloat(tokens[n - 1].value);
   } else { lastOp = null; lastNum = null; }
-  var exprDisplay = tokensText(tokens);
+  var exprDisplay = tokensText(tokens, null);
   for (var i = 0; i < openParens; i++) exprDisplay += ')';
   setResult(norm(evaluateTokens(tokens)), exprDisplay);
 }
@@ -494,7 +540,7 @@ function evaluateTokens(toks) {
   function atom() {
     var k = t[pos];
     if (!k) return 0;
-    if (k.type === 'num') { pos++; return parseFloat(k.value); }
+    if (k.type === 'num') { pos++; return k.pct ? parseFloat(k.value) / 100 : parseFloat(k.value); }
     if (isP(k, '(')) {
       pos++;
       var v = expr();
@@ -515,7 +561,12 @@ function evaluateTokens(toks) {
   }
   function expr() {
     var a = term();
-    while (isOp({'+': 1, '-': 1})) { var o = t[pos++].value; a = applyOp(a, term(), o); }
+    while (isOp({'+': 1, '-': 1})) {
+      var o = t[pos++].value, k = t[pos], nx = t[pos + 1];
+      // 200 + 10 %  →  el 10 % se calcula sobre lo anterior
+      if (k && k.type === 'num' && k.pct && !(nx && nx.type === 'op' && nx.value !== '+' && nx.value !== '-')) { pos++; a = applyOp(a, a * parseFloat(k.value) / 100, o); }
+      else a = applyOp(a, term(), o);
+    }
     return a;
   }
   return expr();
@@ -524,8 +575,7 @@ function evaluateTokens(toks) {
 // --- Funciones basicas ---
 function inputFn(f) {
   if (f === 'ac') {
-    if (entering && hasVal && cur !== '0' && cur !== '-0') cur = '0';
-    else allClear();
+    allClear();
     clearHighlight(); updateDisplay();
     return;
   }
@@ -538,31 +588,41 @@ function inputFn(f) {
       cur = cur.charAt(0) === '-' ? cur.slice(1) : '-' + cur;
     } else {
       cur = String(-parseFloat(cur));
+      if (curDisp !== null) curDisp = curDisp.charAt(0) === '-' ? curDisp.slice(1) : '-' + curDisp;
+      justEvald = false;
     }
     updateDisplay();
     return;
   }
   if (f === 'pct') {
-    if (isErr() || !hasVal) return;
-    var n = parseFloat(cur), l = lastTok(), r;
-    if (l && l.type === 'op' && (l.value === '+' || l.value === '-')) {
-      var start = 0, d = 0;
-      for (var i = tokens.length - 1; i >= 0; i--) {
-        if (isP(tokens[i], ')')) d++;
-        else if (isP(tokens[i], '(')) { if (d === 0) { start = i + 1; break; } d--; }
-      }
-      r = evaluateTokens(tokens.slice(start, tokens.length - 1)) * n / 100;
-    } else r = n / 100;
-    applyValue(r);
+    if (isErr()) return;
+    if (!hasVal) {
+      if (!isP(lastTok(), ')')) return;
+      cur = String(takeOperand()); curDisp = null; hasVal = true; entering = false;
+    }
+    if (curPct) return;
+    if (entering) {
+      if (cur.charAt(cur.length - 1) === '.') cur = cur.slice(0, -1);
+      if (cur === '-0') cur = '0';
+    }
+    curTyped = entering;
+    curPct = true; entering = false; justEvald = false;
+    clearHighlight(); updateDisplay();
     return;
   }
   if (f === 'bs') {
     if (isErr()) { allClear(); updateDisplay(); return; }
-    if (entering) {
+    if (hasVal && curPct) {
+      curPct = false; entering = curTyped && curDisp === null;
+    } else if (entering) {
       cur = cur.slice(0, -1);
-      if (cur === '' || cur === '-') cur = '0';
+      if (cur === '' || cur === '-') {
+        cur = '0';
+        if (tokens.length > 0) { hasVal = false; entering = false; }
+      }
     } else if (hasVal) {
-      cur = '0'; entering = true; justEvald = false;
+      cur = '0'; curDisp = null; justEvald = false;
+      if (tokens.length > 0) { hasVal = false; entering = false; } else entering = true;
     } else {
       var t = tokens.pop();
       if (t) {
@@ -570,7 +630,13 @@ function inputFn(f) {
         else if (isP(t, ')')) openParens++;
         else if (t.type === 'op') {
           var p = lastTok();
-          if (p && p.type === 'num') { tokens.pop(); cur = p.value; entering = p.typed; hasVal = true; }
+          if (p && p.type === 'num') {
+            tokens.pop(); cur = p.value; hasVal = true;
+            curPct = p.pct; curTyped = p.typed;
+            var base = p.pct ? p.disp.replace(/%$/, '') : p.disp;
+            curDisp = (p.typed || base === fmtRes(parseFloat(p.value))) ? null : base;
+            entering = p.typed && !p.pct;
+          }
         }
       }
       clearHighlight();
@@ -579,29 +645,47 @@ function inputFn(f) {
   }
 }
 // Coloca un valor calculado como operando actual
-function applyValue(r) {
+// Coloca el resultado de una función como operando actual, mostrado como expresión (sin(9), 8²...)
+function applyValue(r, disp) {
   r = norm(r);
-  if (isNaN(r) || !isFinite(r)) {
-    cur = isNaN(r) ? 'Maths error' : 'Overflow';
-    tokens = []; openParens = 0; entering = false; hasVal = true; justEvald = true;
-    lastOp = null; lastNum = null; $prevExpr.textContent = '';
-  } else {
-    cur = String(r); entering = false; hasVal = true; justEvald = false;
-  }
+  cur = String(r); curDisp = (disp != null) ? disp : null; curPct = false;
+  entering = false; hasVal = true; justEvald = false;
   clearHighlight();
   updateDisplay();
 }
-function setConst(v) {
+// Inserta una constante o un valor de memoria. sym: HTML simbólico (π, e) o null para un número
+function setConst(v, sym) {
   if (isErr()) allClear();
-  if (!hasVal && isP(lastTok(), ')')) tokens.push({type: 'op', value: '*'});
-  if (hasVal && justEvald) { tokens = []; openParens = 0; }
-  cur = String(v); entering = false; hasVal = true; justEvald = false;
+  if (hasVal) {
+    if (justEvald) { tokens = []; openParens = 0; }
+    else { pushCur(); tokens.push({type: 'op', value: '*', hidden: !!sym}); }   // 8π  /  69×(-10)
+  } else if (isP(lastTok(), ')')) {
+    tokens.push({type: 'op', value: '*', hidden: !!sym});
+  }
+  cur = String(v); curDisp = sym || null; curPct = false;
+  entering = false; hasVal = true; justEvald = false;
   clearHighlight();
   updateDisplay();
+}
+// Valor numérico del operando actual (teniendo en cuenta el %)
+function curValue() {
+  var n = parseFloat(cur);
+  if (!curPct) return n;
+  var l = lastTok();
+  if (l && l.type === 'op' && !l.hidden && (l.value === '+' || l.value === '-')) {
+    var start = 0, d = 0;
+    for (var i = tokens.length - 1; i >= 0; i--) {
+      if (isP(tokens[i], ')')) d++;
+      else if (isP(tokens[i], '(')) { if (d === 0) { start = i + 1; break; } d--; }
+    }
+    return evaluateTokens(tokens.slice(start, tokens.length - 1)) * n / 100;
+  }
+  return n / 100;
 }
 // Operando para funciones de un argumento (numero actual o grupo entre parentesis)
+// Operando para funciones de un argumento
 function takeOperand() {
-  if (hasVal) return parseFloat(cur);
+  if (hasVal) return curValue();
   var l = lastTok();
   if (isP(l, ')')) {
     var d = 0, i;
@@ -615,7 +699,7 @@ function takeOperand() {
   }
   if (l && l.type === 'op') {
     var p = tokens[tokens.length - 2];
-    if (p && p.type === 'num') return parseFloat(p.value);
+    if (p && p.type === 'num') return p.pct ? parseFloat(p.value) / 100 : parseFloat(p.value);
   }
   return 0;
 }
@@ -667,7 +751,7 @@ function showHistory() {
         closeHistory();
         if (isNaN(v)) return;
         allClear();
-        cur = String(v); hasVal = true; justEvald = true; $prevExpr.textContent = '';
+        cur = String(v); hasVal = true; justEvald = true; $prevExpr.innerHTML = '';
         clearHighlight();
         updateDisplay();
       };
@@ -828,7 +912,7 @@ function doSci(action) {
       }
       tokens.push({type: 'paren', value: '('});
       openParens++;
-      cur = '0'; hasVal = false; entering = false; justEvald = false;
+      cur = '0'; hasVal = false; entering = false; justEvald = false; curDisp = null; curPct = false;
       clearHighlight(); updateDisplay();
       return;
     case ')':
@@ -847,15 +931,16 @@ function doSci(action) {
     case 'm+':
     case 'm-':
       if (isErr()) return;
-      n = hasVal ? parseFloat(cur) : 0;
+      n = hasVal ? curValue() : 0;
+      if (isNaN(n) || !isFinite(n)) return;
       memory = norm(action === 'm+' ? memory + n : memory - n);
       memHasValue = true; buildSciGrid();
-      if (hasVal && entering) { cur = String(parseFloat(cur)); entering = false; updateDisplay(); }
+      if (hasVal && entering) { cur = String(parseFloat(cur)); entering = false; justEvald = true; $prevExpr.innerHTML = ''; updateDisplay(); }
       return;
-    case 'mr': setConst(memory); return;
-    case 'e': setConst(Math.E); return;
-    case 'pi': setConst(Math.PI); return;
-    case 'Rand': setConst(Math.random()); return;
+    case 'mr': setConst(memory, null); return;
+    case 'e': setConst(Math.E, '<i>e</i>'); return;
+    case 'pi': setConst(Math.PI, 'π'); return;
+    case 'Rand': setConst(Math.round(Math.random() * 1e8) / 1e8, null); return;
     case 'xy': inputOp('^'); return;
     case 'yx': inputOp('yx'); return;
     case 'sqrty': inputOp('yroot'); return;
@@ -863,35 +948,42 @@ function doSci(action) {
     case 'EE': inputOp('ee'); return;
   }
   if (isErr()) return;
+  // Cómo se muestra el argumento: lo tecleado, o su valor si ya era una expresión
+  var A = (hasVal && curDisp === null && !curPct) ? fmtCur().replace(/,$/, '') : null;
   n = takeOperand();
+  if (A === null) A = fmtRes(n);
+  var B = A.charAt(0) === '-' ? '(' + A + ')' : A;   // base de potencias y factorial
+  function fnc(name) { return name + '(' + A + ')'; }
+  var D;
   switch (action) {
-    case 'x2': result = n * n; break;
-    case 'x3': result = n * n * n; break;
-    case 'ex': result = Math.exp(n); break;
-    case '10x': result = Math.pow(10, n); break;
-    case '2x': result = Math.pow(2, n); break;
-    case '1/x': result = n === 0 ? NaN : 1 / n; break;
-    case 'sqrt2': result = n < 0 ? NaN : Math.sqrt(n); break;
-    case 'sqrt3': result = Math.cbrt(n); break;
-    case 'ln': result = n <= 0 ? NaN : Math.log(n); break;
-    case 'log10': result = n <= 0 ? NaN : Math.log10(n); break;
-    case 'log2': result = n <= 0 ? NaN : Math.log2(n); break;
-    case 'x!': result = factorial(n); break;
-    case 'sin': result = sinA(n); break;
-    case 'cos': result = cosA(n); break;
-    case 'tan': result = tanA(n); break;
-    case 'asin': result = fromRad(Math.asin(n)); break;
-    case 'acos': result = fromRad(Math.acos(n)); break;
-    case 'atan': result = fromRad(Math.atan(n)); break;
-    case 'sinh': result = Math.sinh(n); break;
-    case 'cosh': result = Math.cosh(n); break;
-    case 'tanh': result = Math.tanh(n); break;
-    case 'asinh': result = Math.asinh(n); break;
-    case 'acosh': result = n < 1 ? NaN : Math.acosh(n); break;
-    case 'atanh': result = Math.abs(n) >= 1 ? NaN : Math.atanh(n); break;
+    case 'x2': result = n * n; D = B + '<sup>2</sup>'; break;
+    case 'x3': result = n * n * n; D = B + '<sup>3</sup>'; break;
+    case 'ex': result = Math.exp(n); D = '<i>e</i><sup>' + A + '</sup>'; break;
+    case '10x': result = Math.pow(10, n); D = '10<sup>' + A + '</sup>'; break;
+    case '2x': result = Math.pow(2, n); D = '2<sup>' + A + '</sup>'; break;
+    case '1/x': result = n === 0 ? NaN : 1 / n; D = '(1<span class="o">÷</span>' + B + ')'; break;
+    case 'sqrt2': result = n < 0 ? NaN : Math.sqrt(n); D = fnc('√'); break;
+    case 'sqrt3': result = Math.cbrt(n); D = fnc('∛'); break;
+    case 'ln': result = n <= 0 ? NaN : Math.log(n); D = fnc('ln'); break;
+    case 'log10': result = n <= 0 ? NaN : Math.log10(n); D = fnc('log<sub>10</sub>'); break;
+    case 'log2': result = n <= 0 ? NaN : Math.log2(n); D = fnc('log<sub>2</sub>'); break;
+    case 'x!': result = factorial(n); D = B + '!'; break;
+    case 'sin': result = sinA(n); D = fnc('sin'); break;
+    case 'cos': result = cosA(n); D = fnc('cos'); break;
+    case 'tan': result = tanA(n); D = fnc('tan'); break;
+    case 'asin': result = fromRad(Math.asin(n)); D = fnc('sin<sup>-1</sup>'); break;
+    case 'acos': result = fromRad(Math.acos(n)); D = fnc('cos<sup>-1</sup>'); break;
+    case 'atan': result = fromRad(Math.atan(n)); D = fnc('tan<sup>-1</sup>'); break;
+    case 'sinh': result = Math.sinh(n); D = fnc('sinh'); break;
+    case 'cosh': result = Math.cosh(n); D = fnc('cosh'); break;
+    case 'tanh': result = Math.tanh(n); D = fnc('tanh'); break;
+    case 'asinh': result = Math.asinh(n); D = fnc('sinh<sup>-1</sup>'); break;
+    case 'acosh': result = n < 1 ? NaN : Math.acosh(n); D = fnc('cosh<sup>-1</sup>'); break;
+    case 'atanh': result = Math.abs(n) >= 1 ? NaN : Math.atanh(n); D = fnc('tanh<sup>-1</sup>'); break;
     default: return;
   }
-  applyValue(result);
+  if ((action === 'asin' || action === 'acos' || action === 'atan') && isFinite(result)) result = Number(result.toPrecision(14));
+  applyValue(result, D);
 }
 
 function factorial(n) {
@@ -933,7 +1025,7 @@ function initBtnAnimations() {
     function press() {
       btn.style.transition = 'none';
       if (btn.classList.contains('btn-num')) btn.style.backgroundColor = '#555';
-      else if (btn.classList.contains('btn-op')) btn.style.backgroundColor = btn.classList.contains('hi') ? '#e0e0e0' : '#ffc27a';
+      else if (btn.classList.contains('btn-op')) btn.style.backgroundColor = btn.classList.contains('hi') ? '#e0e0e0' : '#ffcc33';
       else if (btn.classList.contains('btn-fn')) btn.style.backgroundColor = '#8a8a8d';
     }
     function release() {
