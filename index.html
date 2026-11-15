@@ -23,6 +23,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-ap
 
 #display-area{flex:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;padding:0 8px 8px 0;min-height:60px;overflow:hidden}
 #deg-indicator{display:none;font-size:15px;color:#8e8e93;align-self:flex-start;padding:4px 0}
+#prev-expr{font-size:22px;font-weight:400;color:#8e8e93;text-align:right;line-height:1;white-space:nowrap;min-height:0;opacity:0;transition:opacity 0.2s;max-width:100%;overflow:hidden}
+#prev-expr.show{opacity:1}
 #display{font-size:88px;font-weight:300;text-align:right;line-height:1;letter-spacing:-2px;white-space:nowrap;max-width:100%;overflow:hidden}
 
 /* Basic button grid */
@@ -40,6 +42,7 @@ body.sci #calc{padding:env(safe-area-inset-top,0) 6px env(safe-area-inset-bottom
 body.sci #display-area{flex:0 0 auto;min-height:0;padding:0 8px 2px 0;justify-content:flex-end}
 body.sci #deg-indicator{display:block;padding:2px 0}
 body.sci #display{font-size:56px}
+body.sci #prev-expr{font-size:16px}
 body.sci .btn-grid{gap:6px;padding-bottom:6px;flex:1;grid-auto-rows:1fr}
 body.sci .btn{border-radius:14px;aspect-ratio:auto;font-size:22px;padding:0;height:100%;align-self:stretch}
 body.sci .btn-op{font-size:26px}
@@ -131,6 +134,7 @@ body.sci .sci-grid{display:grid;flex:1;grid-auto-rows:1fr}
 <button class="mode-opt mode-sep" onclick="showToast('No disponible')"><span class="mode-check"></span><span class="mode-icon">⇄</span><span class="mode-label">Convertir</span></button>
 </div>
 <div id="display-area">
+<div id="prev-expr"></div>
 <div id="deg-indicator">Rad</div>
 <div id="display">0</div>
 </div>
@@ -204,6 +208,7 @@ var calcHistory = [];
 
 // DOM
 var $disp = document.getElementById('display');
+var $prevExpr = document.getElementById('prev-expr');
 var $acb = document.getElementById('acb');
 var $degInd = document.getElementById('deg-indicator');
 
@@ -261,6 +266,22 @@ function updateDisplay() {
   }
   $disp.textContent = txt;
 
+  // Auto-size previous expression (proportional to main display, always smaller)
+  if ($prevExpr.classList.contains('show')) {
+    var mainSize = parseFloat(window.getComputedStyle($disp).fontSize) || 88;
+    var prevTxt = $prevExpr.textContent;
+    var prevLen = prevTxt.length;
+    var baseRatio = 0.28; // ~25-28% of main display size
+    var prevSize = mainSize * baseRatio;
+    // Shrink further for very long expressions
+    if (prevLen > 20) prevSize *= 0.7;
+    else if (prevLen > 16) prevSize *= 0.8;
+    else if (prevLen > 12) prevSize *= 0.9;
+    // Clamp between 12px and 28px
+    prevSize = Math.max(12, Math.min(28, prevSize));
+    $prevExpr.style.fontSize = prevSize + 'px';
+  }
+
   // AC vs C
   $acb.textContent = (currentNum !== '0' && !freshNum) ? 'C' : 'AC';
 
@@ -300,6 +321,9 @@ function inputNum(n) {
     if (justEvald || (tokens.length > 0 && tokens[tokens.length - 1].type === 'num' && activeOp === null)) {
       tokens = [];
       openParens = 0;
+      // Hide previous expression when starting a new calculation
+      $prevExpr.classList.remove('show');
+      $prevExpr.textContent = '';
     }
     // Implicit multiplication after close paren: (2+3)5 → (2+3)*5
     if (tokens.length > 0 && tokens[tokens.length - 1].type === 'paren' && tokens[tokens.length - 1].value === ')') {
@@ -323,13 +347,17 @@ function inputOp(o) {
     return;
   }
 
-  justEvald = false;
-  lastOp = null; lastNum = null;
-
-  // Push current number and operator
-  if (!freshNum) {
+  // When chaining from a result (e.g. "6" then "+"), push the result as a number token
+  if (justEvald && freshNum) {
+    tokens = [];
+    openParens = 0;
+    tokens.push({type: 'num', value: currentNum});
+  } else if (!freshNum) {
     tokens.push({type: 'num', value: currentNum});
   }
+
+  justEvald = false;
+  lastOp = null; lastNum = null;
   // If last token is an operator, replace it
   if (tokens.length > 0 && tokens[tokens.length - 1].type === 'op') {
     tokens[tokens.length - 1].value = o;
@@ -348,7 +376,11 @@ function doEquals() {
     // Repeated =
     var cur = parseFloat(currentNum);
     var result = evalBinary(cur, lastNum, lastOp);
-    addCalcHistory(fmtNum(String(cur)) + dispOp(lastOp) + fmtNum(String(lastNum)), fmtNum(String(result)));
+    var repeatExpr = fmtNum(String(cur)) + dispOp(lastOp) + fmtNum(String(lastNum));
+    addCalcHistory(repeatExpr, fmtNum(String(result)));
+    // Show previous expression
+    $prevExpr.textContent = repeatExpr;
+    $prevExpr.classList.add('show');
     currentNum = String(result);
     tokens = [];
     freshNum = true;
@@ -379,6 +411,9 @@ function doEquals() {
   var result = evaluateTokens(tokens);
   var resultStr = isNaN(result) ? 'Maths error' : !isFinite(result) ? 'Overflow' : String(result);
   addCalcHistory(exprDisplay, fmtNum(resultStr));
+  // Show previous expression
+  $prevExpr.textContent = exprDisplay;
+  $prevExpr.classList.add('show');
   currentNum = resultStr;
   tokens = [];
   openParens = 0;
@@ -501,6 +536,9 @@ function inputFn(f) {
       currentNum = '0'; tokens = []; freshNum = true;
       lastOp = null; lastNum = null; justEvald = false;
       activeOp = null; openParens = 0;
+      // Clear previous expression on AC
+      $prevExpr.classList.remove('show');
+      $prevExpr.textContent = '';
     }
     clearHighlight(); updateDisplay();
   } else if (f === 'sign') {
