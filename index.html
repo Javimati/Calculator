@@ -1241,8 +1241,12 @@ function TEMP(id) {
   if (T !== null && isNaN(T)) { ER('La temperatura no es un número válido.'); return null; }
   if (T !== null && (T < -100 || T > 200)) { ER('Temperatura fuera de rango (−100 a 200 ºC).'); return null; }
   var V = VS(T), s;
-  if (T !== null) s = D('V = 331,4 + 0,6 · T') + '\nV = 331,4 + 0,6 · ' + PR(I(T)) + ' = 331,4 + ' + PR(F(0.6 * T)) + ' = ' + H(F(V) + ' m/s') + '\n\n';
-  else s = D('V = 343,4 m/s (20 ºC)') + '\n\n';
+  if (T !== null) {
+    var prod = 0.6 * T;
+    AH(0.6, '*', T, prod);
+    AH(331.4, '+', prod, V);
+    s = D('V = 331,4 + 0,6 · T') + '\nV = 331,4 + 0,6 · ' + PR(I(T)) + ' = 331,4 + ' + PR(F(0.6 * T)) + ' = ' + H(F(V) + ' m/s') + '\n\n';
+  } else s = D('V = 343,4 m/s (20 ºC)') + '\n\n';
   return {T: T, V: V, txt: s};
 }
 function LEN(l) {
@@ -1303,6 +1307,11 @@ function XL() {
   if (!(f > 0)) return ER('Escribe una frecuencia mayor que 0.');
   var tp = TEMP('b'); if (!tp) return;
   var l = tp.V / f, t = 1 / f;
+  AH(tp.V, '/', f, l);
+  if (l < 1 && l >= 0.01) AH(l, '*', 100, l * 100);
+  else if (l < 0.01) AH(l, '*', 1000, l * 1000);
+  AH(1, '/', f, t);
+  AH(t, '*', 1000, t * 1000);
   var s = tp.txt + D('λ = V / f') + '\nλ = ' + F(tp.V) + ' / ' + I(f) + ' = ' + LEN(l);
   s += '\n\n' + D('t = 1 / f') + '\nt = 1 / ' + I(f) + ' = ' + TIME(t);
   SR(s, 'λ = ' + F(l) + ' m' + (l < 1 ? ' = ' + F(l * 100) + ' cm' : ''));
@@ -1312,6 +1321,11 @@ function XLT() {
   if (!(v > 0)) return ER('Escribe un periodo mayor que 0.');
   var tp = TEMP('b'); if (!tp) return;
   var t = pU === 'ms' ? v / 1000 : v, l = tp.V * t, s = tp.txt;
+  if (pU === 'ms') AH(v, '/', 1000, t);
+  AH(tp.V, '*', t, l);
+  if (l < 1 && l >= 0.01) AH(l, '*', 100, l * 100);
+  else if (l < 0.01) AH(l, '*', 1000, l * 1000);
+  AH(1, '/', t, 1 / t);
   if (pU === 'ms') s += D('A segundos:') + '\n' + I(v) + ' ms / 1000 = ' + I(t) + ' s\n\n';
   s += D('λ = V · t') + '\nλ = ' + F(tp.V) + ' · ' + I(t) + ' = ' + LEN(l);
   s += '\n\n' + D('f = 1 / t') + '\nf = 1 / ' + I(t) + ' = ' + H(F(1 / t) + ' Hz');
@@ -1321,6 +1335,8 @@ function XFT() {
   var v = GV('a');
   if (!(v > 0)) return ER('Escribe un periodo mayor que 0.');
   var t = pU === 'ms' ? v / 1000 : v, f = 1 / t, s = '';
+  if (pU === 'ms') AH(v, '/', 1000, t);
+  AH(1, '/', t, f);
   if (pU === 'ms') s += D('A segundos:') + '\n' + I(v) + ' ms / 1000 = ' + I(t) + ' s\n\n';
   s += D('f = 1 / t') + '\nf = 1 / ' + I(t) + ' = ' + H(F(f) + ' Hz');
   SR(s, 'f = ' + F(f) + ' Hz');
@@ -1330,6 +1346,8 @@ function XFL() {
   if (!(v > 0)) return ER('Escribe una longitud de onda mayor que 0.');
   var tp = TEMP('b'); if (!tp) return;
   var c = {m: 1, cm: 0.01, mm: 0.001, dm: 0.1}, l = Number((v * c[lU]).toPrecision(12)), f = tp.V / l, s = '';
+  if (lU !== 'm') AH(v, '*', c[lU], l);
+  AH(tp.V, '/', l, f);
   if (lU !== 'm') s += D('A metros:') + '\n' + I(v) + ' ' + lU + ' = ' + I(l) + ' m\n\n';
   s += tp.txt + D('f = V / λ') + '\nf = ' + F(tp.V) + ' / ' + I(l) + ' = ' + H(F(f) + ' Hz');
   SR(s, 'f = ' + F(f) + ' Hz');
@@ -1338,6 +1356,8 @@ function XT() {
   var f = GV('a');
   if (!(f > 0)) return ER('Escribe una frecuencia mayor que 0.');
   var t = 1 / f;
+  AH(1, '/', f, t);
+  AH(t, '*', 1000, t * 1000);
   SR(D('t = 1 / f') + '\nt = 1 / ' + I(f) + ' = ' + TIME(t), 't = ' + F(t) + ' s = ' + F(t * 1000) + ' ms');
 }
 function XV() {
@@ -1370,11 +1390,17 @@ function XDB() {
   if (dD === 'to') {
     if (!(v > 0)) return ER('El valor tiene que ser mayor que 0 (no existe el logaritmo de 0 ni de un número negativo).');
     var rat = v / r, lg = Math.log10(rat), db = m * lg;
+    AH(v, '/', r, rat);
+    addCalcHistory('log(' + fmtRes(rat) + ')', fmtRes(lg), lg);
+    AH(m, '*', lg, db);
     s = D((u || 'valor') + ' → ' + n + ':') + '\n' + m + ' × log(' + I(v) + ' / ' + rs + ')\n= ' + m + ' × log(' + F(rat, 4) + ')\n= ' + m + ' × ' + PR(F(lg, 4)) + '\n= ' + H(FD(db) + ' ' + n);
     re = FD(db) + ' ' + n;
   } else {
     var pw = v / m, k = Math.pow(10, pw), li = r * k;
     if (!isFinite(li)) return ER('El valor es demasiado grande.');
+    AH(v, '/', m, pw);
+    addCalcHistory(fmtRes(10) + '^' + fmtRes(pw), fmtRes(k), k);
+    AH(r, '*', k, li);
     s = D(n + ' → ' + (u || 'valor') + ':') + '\n' + rs + ' × 10^(' + I(v) + ' / ' + m + ')\n= ' + rs + ' × 10^(' + F(pw, 4) + ')\n= ' + rs + ' × ' + F(k, 4) + '\n= ' + H(F(li, 3) + (u ? ' ' + u : ''));
     re = F(li, 3) + (u ? ' ' + u : '');
     if ((tp === 'dBW' || tp === 'dBm') && li < 1000) s += '\n' + D('= ' + F(li * 1000, 3) + ' mW');
@@ -1397,12 +1423,15 @@ function XCF() {
   if (!(v > 0)) return ER('Escribe un retardo mayor que 0.');
   if (!(fm > 0)) return ER('La frecuencia máxima tiene que ser mayor que 0.');
   var t, s = '';
-  if (cU === 'ms') { t = v / 1000; s += D('A segundos:') + '\n' + I(v) + ' / 1000 = ' + I(t) + ' s\n\n'; }
-  else if (cU === 'm') { t = v / V0; s += D('Distancia → tiempo (t = d / V):') + '\nt = ' + I(v) + ' / ' + F(V0) + ' = ' + F(t) + ' s = ' + F(t * 1000) + ' ms\n\n'; }
+  if (cU === 'ms') { t = v / 1000; AH(v, '/', 1000, t); s += D('A segundos:') + '\n' + I(v) + ' / 1000 = ' + I(t) + ' s\n\n'; }
+  else if (cU === 'm') { t = v / V0; AH(v, '/', V0, t); AH(t, '*', 1000, t * 1000); s += D('Distancia → tiempo (t = d / V):') + '\nt = ' + I(v) + ' / ' + F(V0) + ' = ' + F(t) + ' s = ' + F(t * 1000) + ' ms\n\n'; }
   else t = v;
   t = Number(t.toPrecision(12));
   var ts = cU === 'm' ? F(t) : I(t);
   var sp = 1 / t, cn = sp / 2, k = 360 * t;
+  AH(1, '/', t, sp);
+  AH(sp, '/', 2, cn);
+  AH(360, '*', t, k);
   var dec = sp >= 50 ? 0 : sp >= 5 ? 1 : 2;
   function hz(x) { return F(x, dec); }
   s += D('Separación entre picos (+6 dB):') + '\nf = 1 / t = 1 / ' + ts + ' = ' + H(F(sp) + ' Hz') + '\n\n';
@@ -1541,6 +1570,16 @@ function XSD() {
   s += D('SPL a ' + I(dd) + ' m:') + '\n' + FD(s1) + ' + ' + PR(FD(ld)) + ' = ' + H(FD(sf) + ' dB SPL') + '\n\n';
   s += D('Presión:') + '\n2×10⁻⁵ × 10^(' + FD(sf) + ' / 20) = ' + H(F(pa, 3) + ' Pa');
   if (FD(sfx) !== FD(sf)) s += '\n\n' + D('Sin redondear los pasos intermedios: ' + FD(sfx) + ' dB SPL');
+  // Historial: ganancia por potencia
+  addCalcHistory('log(' + fmtRes(w) + ')', fmtRes(Math.log10(w)), Math.log10(w));
+  AH(10, '*', Math.log10(w), gw);
+  AH(se, '+', gw, s1);
+  // Historial: pérdida por distancia
+  AH(1, '/', dd, 1 / dd);
+  addCalcHistory('log(' + fmtRes(1 / dd) + ')', fmtRes(Math.log10(1 / dd)), Math.log10(1 / dd));
+  AH(20, '*', Math.log10(1 / dd), ld);
+  // Historial: SPL final
+  AH(s1, '+', ld, sf);
   SR(s, FD(sf) + ' dB SPL a ' + I(dd) + ' m');
 }
 
@@ -1565,6 +1604,16 @@ function XPW() {
   if (w >= 1000) s += ' ≈ ' + F(w / 1000) + ' kW';
   s += '\n\n' + D('Headroom (cada +3 dB ≈ el doble de W):') + '\n+3 dB → ' + F(w * 2) + ' W\n+6 dB → ' + F(w * 4) + ' W\n+10 dB → ' + F(w * 10) + ' W';
   if (F(wx) !== F(w)) s += '\n\n' + D('Sin redondear los pasos intermedios (P = d² × 10^((SPL − Sens) / 10)): ' + F(wx) + ' W');
+  // Historial: pérdida por distancia
+  AH(1, '/', dd, 1 / dd);
+  addCalcHistory('log(' + fmtRes(1 / dd) + ')', fmtRes(Math.log10(1 / dd)), Math.log10(1 / dd));
+  AH(20, '*', Math.log10(1 / dd), ld);
+  // Historial: SPL necesario a 1 m y diferencia
+  AH(sp, '-', ld, s1);
+  AH(s1, '-', se, dp);
+  // Historial: potencia
+  AH(dp, '/', 10, dp / 10);
+  addCalcHistory(fmtRes(10) + '^' + fmtRes(dp / 10), fmtRes(w), w);
   SR(s, F(w) + ' W');
 }
 
@@ -1603,6 +1652,25 @@ function XPH() {
   else if (Math.abs(ep - 120) < 1 || Math.abs(ep - 240) < 1) s += 'Frontera → ' + H('≈ 0 dB (igual que una sola señal)');
   else if (ep < 120 || ep > 240) s += 'Suma parcial → ' + H(SGN(db) + ' dB') + (db > 3 ? ' (casi en fase)' : '');
   else s += 'Cancelación parcial → <span style="color:#ff453a">' + FD(db) + ' dB</span>';
+  // Historial: conversión ms→s
+  if (fU === 'ms') AH(tv, '/', 1000, t);
+  // Historial: desfase 360 × f × t
+  var _ft = 360 * f;
+  AH(360, '*', f, _ft);
+  AH(_ft, '*', t, ph);
+  // Historial: quitar ciclos si ph >= 360
+  if (ph >= 360) {
+    AH(ph, '/', 360, ph / 360);
+    if (ep > 0) { var _frac = ph / 360 - Math.floor(ph / 360 + 1e-9); AH(_frac, '*', 360, ep); }
+  }
+  // Historial: nivel de la suma
+  addCalcHistory('cos(' + fmtRes(ep / 2) + '°)', fmtRes(c), c);
+  AH(2, '*', c, 2 * c);
+  if (isFinite(db)) {
+    var _amp = Math.abs(2 * c);
+    addCalcHistory('log(' + fmtRes(_amp) + ')', fmtRes(Math.log10(_amp)), Math.log10(_amp));
+    AH(20, '*', Math.log10(_amp), db);
+  }
   SR(s, isFinite(db) ? F(ep) + '° → ' + SGN(db) + ' dB' : F(ep) + '° → Cancelación');
 }
 
@@ -1621,6 +1689,11 @@ function XIV() {
   s += D('Nivel a ' + I(d2) + ' m:') + '\n' + I(db) + ' + ' + PR(FD(dl)) + ' = ' + H(FD(df) + ' dB SPL');
   var dup = Math.log2(d2 / d1);
   if (Math.abs(dup - Math.round(dup)) < 1e-9 && dup !== 0) s += '\n\n' + D('Comprobación rápida: ' + Math.abs(Math.round(dup)) + (dup > 0 ? ' duplicaciones' : ' divisiones a la mitad') + ' de distancia × 6 dB ≈ ' + SGN(-6 * Math.round(dup), 0) + ' dB');
+  // Historial
+  AH(d1, '/', d2, d1 / d2);
+  addCalcHistory('log(' + fmtRes(d1 / d2) + ')', fmtRes(lg), lg);
+  AH(20, '*', lg, dl);
+  AH(db, '+', dl, df);
   SR(s, FD(df) + ' dB SPL a ' + I(d2) + ' m');
 }
 
@@ -1646,6 +1719,10 @@ function XDR() {
   else { res = 'Límite: tamaño = λ'; s += I(sm) + ' m = ' + F(l) + ' m → ' + H('Justo en el límite') + '\n' + D('(por debajo de esta frecuencia, omnidireccional; por encima, directiva)'); }
   var fl = tp.V / sm;
   s += '\n\n' + D('Frecuencia límite (λ = tamaño):') + '\nf = V / tamaño = ' + F(tp.V) + ' / ' + I(sm) + ' = ' + H(F(fl, 0) + ' Hz') + '\n' + D('Por debajo → omnidireccional y la onda rodea (difracta) un objeto de ese tamaño');
+  // Historial
+  if (rU !== 'm') AH(sz, '*', c[rU], sm);
+  AH(tp.V, '/', f, l);
+  AH(tp.V, '/', sm, fl);
   SR(s, res);
 }
 </script>
