@@ -1383,7 +1383,7 @@ var cU = 'ms';
 function M3() {
   AN('Comb Filter', function() {
     cU = 'ms';
-    _v.innerHTML = '<div class="af">' + LB('Retardo') + IN('a') + LB('Unidad') + '<div class="rg"><div class="rd on" onclick="RM(this);cU=\'ms\'">ms</div><div class="rd" onclick="RM(this);cU=\'s\'">s</div><div class="rd" onclick="RM(this);cU=\'m\'">metros</div></div>' + LB('Freq máxima (Hz)') + IN('b', {val: '20000'}) + BT('Calcular', 'XCF') + '<div id="R"></div></div>';
+    _v.innerHTML = '<div class="af">' + LB('Retardo') + IN('a') + LB('Unidad') + '<div class="rg"><div class="rd on" onclick="RM(this);cU=\'ms\'">ms</div><div class="rd" onclick="RM(this);cU=\'s\'">s</div><div class="rd" onclick="RM(this);cU=\'m\'">metros</div></div>' + LB('Freq máxima (Hz)') + IN('b', {val: '20000'}) + LB('Otros niveles en dB (opcional, separa con ;)') + IN('c', {ph: 'Ej: 3,4; 1,2', sg: true}) + LB('Otros grados (opcional, separa con ;)') + IN('d', {ph: 'Ej: 60; 150'}) + BT('Calcular', 'XCF') + '<div id="R"></div></div>';
   });
 }
 function XCF() {
@@ -1422,7 +1422,41 @@ function XCF() {
   if (rm < 0.5) s += ' → sobran 0° → ' + H('en fase (+6 dB)');
   else if (Math.abs(rm - 180) < 0.5) s += ' → sobra medio ciclo (180°) → ' + H('cancelación');
   else s += ' → sobran ' + F(cyc - fc, 4) + ' × 360 = ' + F(rm) + '° → ' + SGN(LVL(rm)) + ' dB';
-  document.getElementById('R').innerHTML = '<div class="ar"><div class="at">' + s + '</div></div>' + tb + '<canvas id="cc" width="800" height="300"></canvas>';
+  // Puntos pedidos: niveles y grados extra
+  function LIST(id) { var e = document.getElementById(id); if (!e) return []; return e.value.split(/[;\s]+/).map(function(z) { return parseFloat(z.replace('−', '-').replace(',', '.')); }).filter(function(z) { return isFinite(z); }); }
+  var lv = LIST('c'), gr = LIST('d'), extra = [];
+  if (lv.length) {
+    s += '\n\n' + D('Otros niveles — se despeja 20 × log(2 × cos(φ/2)) = L:') + '\ncos(φ/2) = 10^(L/20) / 2 → φ = 2 × acos(10^(L/20) / 2)';
+    lv.forEach(function(L) {
+      if (L > 6.02) { s += '\n' + SGN(L, 2) + ' dB → ' + H('imposible') + ' (el máximo con dos señales iguales es +6,02 dB)'; return; }
+      var r = Math.pow(10, L / 20) / 2, a = 2 * Math.acos(r) * 180 / Math.PI, b = 360 - a;
+      s += '\n\n' + SGN(L, 2) + ' dB:\n10^(' + F(L, 2) + ' / 20) / 2 = ' + F(r, 4) + '\nφ = 2 × acos(' + F(r, 4) + ') = ' + H(F(a, 2) + '°') + ' y 360 − ' + F(a, 2) + ' = ' + H(F(b, 2) + '°') + '\nf = ' + F(a, 2) + ' / ' + F(k, 4) + ' = ' + H(hz(a / k) + ' Hz') + ' · f = ' + F(b, 2) + ' / ' + F(k, 4) + ' = ' + H(hz(b / k) + ' Hz');
+      extra.push([SGN(L, 2) + ' dB', a / k, b / k]);
+    });
+  }
+  if (gr.length) {
+    s += '\n\n' + D('Otros grados — f = φ / (360 × t), nivel = 20 × log(2 × cos(φ/2)):');
+    gr.forEach(function(g) {
+      var gg = ((g % 360) + 360) % 360;
+      var red = gg !== g ? ' (' + F(g, 2) + '° − ciclos completos = ' + F(gg, 2) + '°)' : '';
+      s += '\n' + F(g, 2) + '°' + red + ' → f = ' + F(gg, 2) + ' / ' + F(k, 4) + ' = ' + H(hz(gg / k) + ' Hz') + ' → ' + (Math.abs(gg - 180) < 1e-9 ? 'cancelación' : SGN(LVL(gg)) + ' dB');
+      extra.push([F(g, 2) + '°', gg / k, null]);
+    });
+  }
+  var tb2 = '';
+  if (extra.length) {
+    var rows2 = Math.min(Math.floor(lim / sp) + 1, MAXR);
+    tb2 = '<table class="tb"><tr><th>Ciclo</th>';
+    extra.forEach(function(e) { tb2 += '<th class="pk">' + e[0] + '</th>' + (e[2] != null ? '<th class="pk">' + e[0] + '</th>' : ''); });
+    tb2 += '</tr>';
+    for (var i2 = 0; i2 < rows2; i2++) {
+      tb2 += '<tr><td>' + (i2 + 1) + '</td>';
+      extra.forEach(function(e) { tb2 += cell(i2 * sp + e[1], 'zr') + (e[2] != null ? cell(i2 * sp + e[2], 'zr') : ''); });
+      tb2 += '</tr>';
+    }
+    tb2 += '</table>';
+  }
+  document.getElementById('R').innerHTML = '<div class="ar"><div class="at">' + s + '</div></div>' + tb + tb2 + '<canvas id="cc" width="800" height="300"></canvas>';
   var cv = document.getElementById('cc'); if (!cv || !cv.getContext) return;
   var x = cv.getContext('2d'), W = cv.width, Hh = cv.height, pL = 50, pR = 20, pT = 30, pB = 40, gW = W - pL - pR, gH = Hh - pT - pB;
   x.fillStyle = '#1c1c1e'; x.fillRect(0, 0, W, Hh);
