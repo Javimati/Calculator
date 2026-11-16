@@ -1438,7 +1438,10 @@ function XCF() {
   s += D('1ª cancelación (180°):') + '\nf = 1 / (2 × ' + ts + ') = ' + H(F(cn) + ' Hz') + '\n\n';
   s += D('Puntos clave — f = φ / (360 × t):') + '\n360 × ' + ts + ' = ' + F(k, 4) + '\n';
   var pts = [[90, '+3 dB'], [120, '0 dB'], [180, 'cancelación'], [240, '0 dB'], [270, '+3 dB'], [360, '+6 dB']];
-  for (var q = 0; q < pts.length; q++) s += pts[q][0] + '° → ' + pts[q][0] + ' / ' + F(k, 4) + ' = ' + hz(pts[q][0] / k) + ' Hz (' + pts[q][1] + ')\n';
+  for (var q = 0; q < pts.length; q++) {
+    AH(pts[q][0], '/', k, pts[q][0] / k);
+    s += pts[q][0] + '° → ' + pts[q][0] + ' / ' + F(k, 4) + ' = ' + hz(pts[q][0] / k) + ' Hz (' + pts[q][1] + ')\n';
+  }
   var lim = fm * (1 + 1e-9), MAXR = 400;
   var total = Math.floor(lim / sp) + 1, nrows = Math.min(total, MAXR);
   function cell(x, c) { return x <= lim ? '<td class="' + c + '">' + hz(x) + '</td>' : '<td class="' + c + '">—</td>'; }
@@ -1452,6 +1455,8 @@ function XCF() {
   var cc = Math.floor(lim * t + 0.5);
   s += '\n' + D('Cancelaciones hasta ' + I(fm) + ' Hz: ') + H(String(cc));
   var pe = Number((360 * fm * t).toPrecision(12)), cyc = pe / 360, fc = Math.floor(cyc + 1e-9), rm = pe - fc * 360;
+  AH(360, '*', fm, 360 * fm); AH(360 * fm, '*', t, pe);
+  AH(pe, '/', 360, cyc);
   if (rm < 0) rm = 0;
   s += '\n\n' + D('Comprobación en ' + I(fm) + ' Hz:') + '\nφ = 360 × ' + I(fm) + ' × ' + ts + ' = ' + F(pe) + '°\n' + F(pe) + ' / 360 = ' + F(cyc, 4) + ' ciclos';
   if (rm < 0.5) s += ' → sobran 0° → ' + H('en fase (+6 dB)');
