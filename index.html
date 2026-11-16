@@ -1426,20 +1426,41 @@ function XCF() {
   function LIST(id) { var e = document.getElementById(id); if (!e) return []; return e.value.split(/[;\s]+/).map(function(z) { return parseFloat(z.replace('−', '-').replace(',', '.')); }).filter(function(z) { return isFinite(z); }); }
   var lv = LIST('c'), gr = LIST('d'), extra = [];
   if (lv.length) {
-    s += '\n\n' + D('Otros niveles — se despeja 20 × log(2 × cos(φ/2)) = L:') + '\ncos(φ/2) = 10^(L/20) / 2 → φ = 2 × acos(10^(L/20) / 2)';
+    s += '\n\n' + D('Otros niveles — se despeja φ de dB = 20 × log(2 × cos(φ/2)):');
     lv.forEach(function(L) {
-      if (L > 6.02) { s += '\n' + SGN(L, 2) + ' dB → ' + H('imposible') + ' (el máximo con dos señales iguales es +6,02 dB)'; return; }
-      var r = Math.pow(10, L / 20) / 2, a = 2 * Math.acos(r) * 180 / Math.PI, b = 360 - a;
-      s += '\n\n' + SGN(L, 2) + ' dB:\n10^(' + F(L, 2) + ' / 20) / 2 = ' + F(r, 4) + '\nφ = 2 × acos(' + F(r, 4) + ') = ' + H(F(a, 2) + '°') + ' y 360 − ' + F(a, 2) + ' = ' + H(F(b, 2) + '°') + '\nf = ' + F(a, 2) + ' / ' + F(k, 4) + ' = ' + H(hz(a / k) + ' Hz') + ' · f = ' + F(b, 2) + ' / ' + F(k, 4) + ' = ' + H(hz(b / k) + ' Hz');
+      if (L > 6.02) { s += '\n\n' + SGN(L, 2) + ' dB → ' + H('imposible') + ' (el máximo con dos señales iguales es +6,02 dB, cuando φ = 0°)'; return; }
+      var x1 = L / 20, y1 = Math.pow(10, x1), r = y1 / 2, h = Math.acos(r) * 180 / Math.PI, a = 2 * h, b = 360 - a, ck = 20 * Math.log10(2 * Math.cos(a * Math.PI / 360));
+      s += '\n\n' + H(SGN(L, 2) + ' dB') + ':'
+        + '\n' + SGN(L, 2) + ' = 20 × log(2 × cos(φ/2))'
+        + '\n1) Divido entre 20: ' + F(L, 2) + ' / 20 = ' + F(x1, 4) + ' → log(2 × cos(φ/2)) = ' + F(x1, 4)
+        + '\n2) Quito el log (10 elevado): 2 × cos(φ/2) = 10^' + F(x1, 4) + ' = ' + F(y1, 4)
+        + '\n3) Divido entre 2: cos(φ/2) = ' + F(y1, 4) + ' / 2 = ' + F(r, 4)
+        + '\n4) Quito el cos (cos⁻¹, en grados): φ/2 = cos⁻¹(' + F(r, 4) + ') = ' + F(h, 2) + '°'
+        + '\n5) Multiplico por 2: φ = 2 × ' + F(h, 2) + ' = ' + H(F(a, 2) + '°')
+        + '\n6) Pasa dos veces por ciclo (simétrico respecto a 180°): 360 − ' + F(a, 2) + ' = ' + H(F(b, 2) + '°')
+        + '\n7) A frecuencia, f = φ / (360 × t):'
+        + '\n   ' + F(a, 2) + ' / ' + F(k, 4) + ' = ' + H(hz(a / k) + ' Hz')
+        + '\n   ' + F(b, 2) + ' / ' + F(k, 4) + ' = ' + H(hz(b / k) + ' Hz')
+        + '\n8) Siguientes ciclos: sumar ' + F(sp) + ' Hz (ver tabla)'
+        + '\nComprobación: 20 × log(2 × cos(' + F(a, 2) + ' / 2)) = ' + SGN(ck, 2) + ' dB ✓';
       extra.push([SGN(L, 2) + ' dB', a / k, b / k]);
     });
   }
   if (gr.length) {
-    s += '\n\n' + D('Otros grados — f = φ / (360 × t), nivel = 20 × log(2 × cos(φ/2)):');
+    s += '\n\n' + D('Otros grados — f = φ / (360 × t) y dB = 20 × log(2 × cos(φ/2)):');
     gr.forEach(function(g) {
       var gg = ((g % 360) + 360) % 360;
-      var red = gg !== g ? ' (' + F(g, 2) + '° − ciclos completos = ' + F(gg, 2) + '°)' : '';
-      s += '\n' + F(g, 2) + '°' + red + ' → f = ' + F(gg, 2) + ' / ' + F(k, 4) + ' = ' + H(hz(gg / k) + ' Hz') + ' → ' + (Math.abs(gg - 180) < 1e-9 ? 'cancelación' : SGN(LVL(gg)) + ' dB');
+      s += '\n\n' + H(F(g, 2) + '°') + ':';
+      if (g >= 360 || g < 0) {
+        var cy = g / 360, fc = Math.floor(cy);
+        s += '\nMás de 360°: ' + F(g, 2) + ' / 360 = ' + F(cy, 4) + ' ciclos → ' + fc + (fc === 1 ? ' completo' : ' completos') + ' → ' + F(cy - fc, 4) + ' × 360 = ' + H(F(gg, 2) + '°');
+      }
+      s += '\nf = ' + F(gg, 2) + ' / ' + F(k, 4) + ' = ' + H(hz(gg / k) + ' Hz');
+      var c2 = Math.cos(gg * Math.PI / 360), amp = 2 * c2;
+      s += '\ndB = 20 × log(2 × cos(' + F(gg, 2) + ' / 2)) = 20 × log(2 × cos(' + F(gg / 2, 2) + '°)) = 20 × log(2 × ' + F(c2, 4) + ') = 20 × log(' + F(Math.abs(amp), 4) + ')';
+      if (Math.abs(amp) < 1e-9) s += ' → ' + H('cancelación');
+      else s += ' = ' + H(SGN(20 * Math.log10(Math.abs(amp)), 2) + ' dB') + (amp < 0 ? ' (el signo − del cos no cuenta, se usa el valor absoluto)' : '');
+      s += '\nSiguientes ciclos: sumar ' + F(sp) + ' Hz (ver tabla)';
       extra.push([F(g, 2) + '°', gg / k, null]);
     });
   }
