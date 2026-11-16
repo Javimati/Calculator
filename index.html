@@ -1205,7 +1205,7 @@ function SGN(n, x) { var s = x == null ? FD(n) : F(n, x); return (n > 0 && s !==
 // --- Entradas ---
 function IN(id, o) {
   o = o || {};
-  return '<div class="iw"><input class="ai" id="' + id + '" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false"' + (o.ph ? ' placeholder="' + o.ph + '"' : '') + (o.val != null ? ' value="' + o.val + '"' : '') + '>' + (o.sg ? '<button class="sg" type="button" onclick="SG(\'' + id + '\')" aria-label="Cambiar signo">±</button>' : '') + '</div>';
+  return '<div class="iw"><input class="ai" id="' + id + '" type="text" inputmode="' + (o.im || 'decimal') + '" autocomplete="off" autocorrect="off" spellcheck="false"' + (o.ph ? ' placeholder="' + o.ph + '"' : '') + (o.val != null ? ' value="' + o.val + '"' : '') + '>' + (o.sg ? '<button class="sg" type="button" onclick="SG(\'' + id + '\')" aria-label="Cambiar signo">±</button>' : '') + '</div>';
 }
 function SG(id) {
   var e = document.getElementById(id), v = e.value.trim();
@@ -1383,7 +1383,7 @@ var cU = 'ms';
 function M3() {
   AN('Comb Filter', function() {
     cU = 'ms';
-    _v.innerHTML = '<div class="af">' + LB('Retardo') + IN('a') + LB('Unidad') + '<div class="rg"><div class="rd on" onclick="RM(this);cU=\'ms\'">ms</div><div class="rd" onclick="RM(this);cU=\'s\'">s</div><div class="rd" onclick="RM(this);cU=\'m\'">metros</div></div>' + LB('Freq máxima (Hz)') + IN('b', {val: '20000'}) + LB('Otros niveles en dB (opcional, separa con ;)') + IN('c', {ph: 'Ej: 3,4; 1,2', sg: true}) + LB('Otros grados (opcional, separa con ;)') + IN('d', {ph: 'Ej: 60; 150'}) + BT('Calcular', 'XCF') + '<div id="R"></div></div>';
+    _v.innerHTML = '<div class="af">' + LB('Retardo') + IN('a') + LB('Unidad') + '<div class="rg"><div class="rd on" onclick="RM(this);cU=\'ms\'">ms</div><div class="rd" onclick="RM(this);cU=\'s\'">s</div><div class="rd" onclick="RM(this);cU=\'m\'">metros</div></div>' + LB('Freq máxima (Hz)') + IN('b', {val: '20000'}) + LB('Otros niveles en dB (opcional, separa con espacios)') + IN('c', {ph: 'Ej: 3,4 1,2', sg: true, im: 'text'}) + LB('Otros grados (opcional, separa con espacios)') + IN('d', {ph: 'Ej: 60 150', im: 'text'}) + BT('Calcular', 'XCF') + '<div id="R"></div></div>';
   });
 }
 function XCF() {
