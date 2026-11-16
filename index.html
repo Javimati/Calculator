@@ -1166,6 +1166,12 @@ function AN(t, f) { ah.push({t: t, f: f}); _t.textContent = t; f(); }
 var V0 = 343.4;
 function VS(t) { return t == null ? V0 : 331.4 + 0.6 * t; }
 
+// --- Añadir operaciones AV al historial de la calculadora ---
+function AH(a, op, b, r) {
+  var ops = {'/':' ÷ ', '*':' × ', '+':' + ', '-':' − '};
+  addCalcHistory(fmtRes(a) + (ops[op]||' '+op+' ') + fmtRes(b), fmtRes(r), r);
+}
+
 // --- Formato AV ---
 var SUP = {'0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻'};
 function fx(n, dec) {
